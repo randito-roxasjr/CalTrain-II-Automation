@@ -9,6 +9,8 @@ public class Caltrain{
 		
 		//Create All Trains
 		Train[] trains = train_init();
+
+		
 	}
 
 	////////////////// Create All 8 Stations //////////////////
