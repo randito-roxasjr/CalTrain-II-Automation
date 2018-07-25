@@ -1,8 +1,12 @@
 import java.util.Scanner;
 
 public class Caltrain{
- Scanner reader = new Scanner(System.in);
+	Scanner reader;	
 	
+	public Caltrain(){
+		reader = new Scanner(System.in);
+	}
+
 	public void run(){
 		//Create Stations
 		Station[] stations = station_init();
@@ -10,7 +14,6 @@ public class Caltrain{
 		//Create All Trains
 		Train[] trains = train_init();
 
-		
 	}
 
 	////////////////// Create All 8 Stations //////////////////
