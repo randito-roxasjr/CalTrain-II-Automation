@@ -1,5 +1,3 @@
-package Randi;
-
 import java.util.concurrent.*;
 
 class Train extends Thread{

@@ -1,5 +1,3 @@
-package Randi;
-
 import java.util.Scanner;
 
 public class Caltrain{
