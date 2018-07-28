@@ -1,3 +1,5 @@
+package Randi;
+
 import java.util.concurrent.*;
 
 class Train extends Thread{
@@ -6,12 +8,14 @@ class Train extends Thread{
 	Station next_station;
 	int free_seats;
 	String name;
+	boolean isFirstTrain;
 
 	////////////////// Constructor station_init //////////////////
-	public Train(String name, int N, Station[] stations){
+	public Train(String name, int N, Station[] stations, boolean isFirst){
 		this.free_seats = N;
 		this.stations = stations;
 		this.name = name;
+		this.isFirstTrain = isFirst;
 		System.out.println("Created Train: "+this.free_seats+" seats");
 	}
 
@@ -25,14 +29,25 @@ class Train extends Thread{
 		do {
 			i = (i+1) % 8; // mod 8 since only 8 stations available
 			next_station = stations[i];
-			next_station.checkWaiting();
+			if(!isFirstTrain) {
+				System.out.println("check waiting" + name);
+				next_station.checkWaiting();
+			}
+			else {
+				System.out.println("nag false ako!");
+				isFirstTrain = false;
+			}
+				
 			curr_station = stations[i];
-			curr_station.waitEmpty();
-			
+			curr_station.waitEmpty(name);
+			System.out.println("nakalabas WAITEMPTY " + name);
 			curr_station.station_load_train(free_seats, this);
+			System.out.println("load train ok " + name);
 			
 		}
-		while(curr_station.waiting!=0 && curr_station.Name.equalsIgnoreCase("Roosevelt")); 
+		//while(curr_station.waiting!=0 || curr_station.Name.equalsIgnoreCase("Roosevelt"));
+		while(!curr_station.Name.equalsIgnoreCase("Baclaran"));
+		System.out.println("I exited" + name + " " + curr_station.Name);
 		//if wala ng passengers sa mga station and nasa dulong station na ko, i stop
 	}
 }

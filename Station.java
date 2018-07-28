@@ -25,32 +25,39 @@ class Station{
 		System.out.println("Created Station " + this.Name);
 		free_seats = 0;
 		boarding = 0;
+		
 	}
 	
 	
 	public void checkWaiting() {
 		while(hasWaitingTrain) {
 			try {
-				waiting_train.wait();
+				waiting_train.await();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+		hasTrain = false;
 		train.signal();
 	}
 	
-	public void waitEmpty() {
+	public void waitEmpty(String name) {
+		hasWaitingTrain = true;
 		while(hasTrain)
 			try {
+				System.out.println("hello " + name + " awaiting");
 				train.await();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+		hasWaitingTrain = false;
+
 	}
 	
 	////////////////// A train arrives at the station; count=seats and is treated as an input //////////
 	public void station_load_train(int count, Train tren){
 		lock.lock();
+		System.out.println("acquired lock!");
 		free_seats = count;
 		hasTrain = true;
 		while(waiting!=0 && free_seats!=0) {
@@ -58,10 +65,12 @@ class Station{
 			lock.unlock();
 			lock.lock();
 		}
+		System.out.println("passenger boarding");
 		while(boarding!=0) {
 			lock.unlock();
 			lock.lock();
 		}
+		System.out.println("train leaving");
 		free_seats=0;
 		hasTrain=false;
 		tren.free_seats -= boarding;
@@ -91,7 +100,7 @@ class Station{
 	
 	////////////////// passenger checks if train successfully arrives on a station //////////////////
 	public boolean station_check_station() {
-		if(hasTrain || free_seats<=0)
+		if(hasTrain && free_seats<=0)
 			return true;
 		else
 			return false;

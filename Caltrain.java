@@ -1,3 +1,5 @@
+package Randi;
+
 import java.util.Scanner;
 
 public class Caltrain{
@@ -53,8 +55,13 @@ public class Caltrain{
 			System.out.println("Train "+(i+1));
 			System.out.print("Number of Seats: ");
 			int x = reader.nextInt();
-			trains[i] = new Train("Train"+(i+1),x,stations);
+			trains[i] = new Train("Train"+(i+1),x,stations,true);
+			
 		}
+	}
+	
+	static void dispatchTrain(int i) {
+		trains[i].start();
 	}
 	
 	public static void main(String[]args) {
@@ -62,14 +69,28 @@ public class Caltrain{
 		station_init();
 		Scanner reader =  new Scanner(System.in);
 		int x = reader.nextInt();
+		int total_passenger = x;
+		int undispatchedTrain = 15;
+		int counter=1;
 		passengers = new Passenger[x];
 		distribute_pass(x);
 		for(int i = 0; i<x ; i++) {
 			passengers[i] = new Passenger("Pass#"+(i+1), stations[i%8]);
 			passengers[i].start();
 		}
-		
-		
+		train_init();
+		dispatchTrain(0);
+		//dispatchTrain(1);
+		while(undispatchedTrain!=0) {
+			while(stations[0].hasTrain);
+			dispatchTrain(counter);
+			counter++;
+			undispatchedTrain--;
+		}
+		/*while(total_passenger>0) {
+			
+		}
+		*/
 		
 	}
 	
