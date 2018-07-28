@@ -1,18 +1,18 @@
-import java.util.ArrayList;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-class Station{
+class Station extends Thread{
 	//private Thread t;
 	String name;
-	private final Lock lock = new ReentrantLock(); //mutex
-	private final Condition train = lock.newCondition(); //acts like semaphore for train
-	private final Condition seats = lock.newCondition(); //acts like semaphore for free_seats
+	private final Semaphore train = new Semaphore(1); //acts like semaphore for train
+	private Semaphore seats; //acts like semaphore for free_seats
 	
 	private boolean hasTrain = false;
+	private Train curr_train;
 	
-	int free_seats;
+	int free_seats=0;
 	int waiting;
 	int boarding;
 
@@ -21,11 +21,16 @@ class Station{
 		this.name = N;
 		System.out.println("Created Station " + this.name);
 	}
+
+	////////////////// RUN STATIONS //////////////////
+	public void run(){
+		this.station_wait_for_train();
+	}
 	
 	public void waitEmpty() {
 		while(hasTrain)
 			try {
-				train.await();
+				train.wait();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -33,31 +38,29 @@ class Station{
 	
 	////////////////// A train arrives at the station; count=seats and is treated as an input //////////
 	public void station_load_train(int count){
-		lock.lock();
-		free_seats = count;
+		this.seats = new Semaphore(count)
 		hasTrain = true;
+		boarding = 0 ;
+		//Passengers acquire seats
+		this.seats.acquire();
+		free_seats = count;
+		
 		while(waiting!=0 && free_seats!=0) {
-			seats.signal();
-			lock.unlock();
-			lock.lock();
+			boarding++;
+			waiting--;
 		}
-		while(boarding!=0) {
-			lock.unlock();
-			lock.lock();
-		}
-		free_seats=0;
-		lock.unlock();
+
+
+		seats.release();
 	}
 
 	////////////////// station waits for the train //////////////////
 	public void station_wait_for_train(){
-		// If train has arrived and there are enough seats		
-		// else, continue to wait
-		lock.lock();
-		waiting ++;
+		train.acquire(); //acquire a train
+
 		while(free_seats<=0) { //free_seats = 0 means 1) there is no train and 2) there are no free_seats
 			try {
-				seats.await();
+				seats.wait();
 			} 
 			catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -65,8 +68,7 @@ class Station{
 			}
 		}
 		hasTrain = true;
-		boarding ++;
-		lock.unlock();
+
 	}
 	
 	////////////////// passenger checks if train successfully arrives on a station //////////////////

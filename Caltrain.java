@@ -26,7 +26,9 @@ public class Caltrain{
 		this.distribute_pass(N, D);	
 
 		///////////////////////////////////////////////////
-
+		while(N>0){
+			
+		}
 	}
 
 	////////////////// Distribute Passengers //////////////////
@@ -51,7 +53,7 @@ public class Caltrain{
 		}
 
 		for (i=0; i<8; i++){
-			System.out.println(this.stations[i].waiting+" passengers waiting at station "+this.stations[i].name);
+			System.out.println(this.stations[i].waiting+" passengers arrived at station "+this.stations[i].name);
 		}
 	}
 
@@ -77,10 +79,8 @@ public class Caltrain{
 			System.out.print("Number of Seats: ");
 			x = reader.nextInt();
 
-			sem = new Semaphore(x);
-
 			System.out.println("Created Train "+(i+1)+": "+x+" seats");
-			this.trains[i] = new Train("Train"+i, sem, x, stations);
+			this.trains[i] = new Train("Train"+i, x, stations);
 		}
 	}
 
