@@ -1,5 +1,3 @@
-package Randi;
-
 import java.util.Scanner;
 
 public class Caltrain{
@@ -14,11 +12,34 @@ public class Caltrain{
 		station_init();
 		//Create All Trains
 		train_init();
+
+		//Get inputs for passenger and their dropoff
+		System.print("Total number of Passengers: ");
+		int N = reader.nextInt(); //All passengers
+		
+		System.print("Stations to be boarded: ");
+		int D = reader.nextInt(); //How many Stations before dropoff
+	
+
 	}
 
 	public void run(){
 		open_stations();
+	}
 
+	////////////////// Distribute Passengers //////////////////
+	public void distribute_pass(int N, int D){
+		int passengers =  N/8;
+		int remaining = N%8;
+
+		this.stations[0] 
+		this.stations[1] 
+		this.stations[2] 
+		this.stations[3] 
+		this.stations[4] 
+		this.stations[5] 
+		this.stations[6] 
+		this.stations[7]
 	}
 
 	////////////////// Create All 8 Stations //////////////////
