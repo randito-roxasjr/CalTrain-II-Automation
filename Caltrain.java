@@ -1,3 +1,5 @@
+package Randi;
+
 import java.util.Scanner;
 
 public class Caltrain{
@@ -8,7 +10,7 @@ public class Caltrain{
 	public Caltrain(){
 		reader = new Scanner(System.in);
 
-		//Create Stations
+		//Create Stationst
 		station_init();
 		//Create All Trains
 		train_init();
@@ -38,7 +40,7 @@ public class Caltrain{
 			System.out.println("Train "+(i+1));
 			System.out.print("Number of Seats: ");
 			int x = reader.nextInt();
-			this.trains[i] = new Train(x);
+			this.trains[i] = new Train("Train"+i,x,stations);
 		}
 	}
 	////////////////// Open All Stations //////////////////
@@ -50,22 +52,7 @@ public class Caltrain{
 
 	}
 
-	////////////////// A train arrives at the station; count=seats and is treated as an input //////////
-	public void station_load_train(int count){
-		;
-	}
 
-	////////////////// station waits for the train //////////////////
-	public void station_wait_for_train(){
-		// If train has arrived and there are enough seats		
-		// else, continue to wait
-		;
-	}
 
-	////////////////// Passengers are seated //////////////////
-	public void station_on_board(){
-		// Let train know passengers are on board
-		;
-	}
 
 }
