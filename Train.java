@@ -4,7 +4,11 @@ class Train extends Thread{
 	Station[] stations;
 	Station curr_station;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	Station next_station;
+=======
+	int max_seats;
+>>>>>>> c2bf62702e58ceed998e74c3f4bf764349d99bac
 =======
 	int max_seats;
 >>>>>>> c2bf62702e58ceed998e74c3f4bf764349d99bac
