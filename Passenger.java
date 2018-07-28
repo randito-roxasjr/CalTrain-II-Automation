@@ -1,16 +1,23 @@
 import java.util.concurrent.*;
 
-class Passenger implements Runnable{
-	private String name;
-	private Thread robot;
-	private boolean active;
-	private Semaphore sem = new Semaphore(1);
+class Passenger extends Thread{
 
-	Passenger(String name){
+	private String name;
+	private Station station;
+	private int count;
+
+	Passenger(String name, Station station){
 		this.name = name;
+		this.station = station;
+		this.count = 5;
 	}
 
 	public void run(){
-		;
+		station.station_wait_for_train();
+		while(count!=0) {
+			if(station.station_check_station())
+				count --;
+		}
+		station.station_get_off();
 	}
 }

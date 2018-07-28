@@ -1,46 +1,93 @@
 import java.util.ArrayList;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
-class Station implements Runnable{
-	private ArrayList<Passenger> passengers = new ArrayList<Passenger>();
-	private Thread t;
-	private String Name;
-	private int N=0;
+class Station{
+	//private Thread t;
+	String name;
+	private final Lock lock = new ReentrantLock(); //mutex
+	private final Condition train = lock.newCondition(); //acts like semaphore for train
+	private final Condition seats = lock.newCondition(); //acts like semaphore for free_seats
+	
+	private boolean hasTrain = false;
+	
+	int free_seats;
+	int waiting;
+	int boarding;
 
 	////////////////// Contructor station_init //////////////////
 	Station(String N){
-		this.Name = N;
-		System.out.println("Created Station " + this.Name);
+		this.name = N;
+		System.out.println("Created Station " + this.name);
+	}
+	
+	public void waitEmpty() {
+		while(hasTrain)
+			try {
+				train.await();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+	}
+	
+	////////////////// A train arrives at the station; count=seats and is treated as an input //////////
+	public void station_load_train(int count){
+		lock.lock();
+		free_seats = count;
+		hasTrain = true;
+		while(waiting!=0 && free_seats!=0) {
+			seats.signal();
+			lock.unlock();
+			lock.lock();
+		}
+		while(boarding!=0) {
+			lock.unlock();
+			lock.lock();
+		}
+		free_seats=0;
+		lock.unlock();
 	}
 
-	public void run(){
-		System.out.println("Station "+this.Name+" running.");
-		String str = Integer.toString(N);
-		Passenger robot;
-		for(int i=0; i<5; i++){
-			
-			//Sleep before adding Passengers to station
-			try{
-				t.sleep(1000);
-				robot = new Passenger(str);
-				passengers.add(robot);
-				N += 1;
+	////////////////// station waits for the train //////////////////
+	public void station_wait_for_train(){
+		// If train has arrived and there are enough seats		
+		// else, continue to wait
+		lock.lock();
+		waiting ++;
+		while(free_seats<=0) { //free_seats = 0 means 1) there is no train and 2) there are no free_seats
+			try {
+				seats.await();
 			} 
-			catch(InterruptedException e){
-				System.out.println("Thread "+this.Name+" interrupted.");
+			catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
-
-		System.out.println("5 new passengers arrived at Station "+this.Name);
-				
+		hasTrain = true;
+		boarding ++;
+		lock.unlock();
+	}
+	
+	////////////////// passenger checks if train successfully arrives on a station //////////////////
+	public boolean station_check_station() {
+		if(hasTrain || free_seats<=0)
+			return true;
+		else
+			return false;
+	}
+	
+	////////////////// passenger gets off train and free seat increments //////////////////
+	public void station_get_off() {
+		lock.lock();
+		free_seats++;
+		lock.unlock();		
 	}
 
-	////////////////// Start Station Service //////////////////
-	public void open(){
-		System.out.println("Station "+this.Name+" is now open.");
-		if (t == null){
-			t = new Thread(this, this.Name);
-			t.start();
-		}
+	////////////////// Passengers are seated //////////////////
+	public void station_on_board(){
+		// Let train know passengers are on board
+		;
 	}
-
+	
 }

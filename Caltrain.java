@@ -1,4 +1,6 @@
 import java.util.Scanner;
+import java.util.concurrent.*;
+
 
 public class Caltrain{
 	Scanner reader;	
@@ -15,8 +17,42 @@ public class Caltrain{
 	}
 
 	public void run(){
-		open_stations();
+		//Get inputs for passenger and their dropoff
+		System.out.print("Total number of Passengers: ");
+		int N = reader.nextInt(); //All passengers
+		
+		System.out.print("Stations to be boarded: ");
+		int D = reader.nextInt(); //How many Stations before dropoff
+		this.distribute_pass(N, D);	
 
+		///////////////////////////////////////////////////
+
+	}
+
+	////////////////// Distribute Passengers //////////////////
+	public void distribute_pass(int N, int D){
+		int passengers =  N/8;
+		int remaining = N%8;
+		int i=0;
+
+		this.stations[0].waiting = passengers;
+		this.stations[1].waiting = passengers; 
+		this.stations[2].waiting = passengers;
+		this.stations[3].waiting = passengers;
+		this.stations[4].waiting = passengers;
+		this.stations[5].waiting = passengers;
+		this.stations[6].waiting = passengers;
+		this.stations[7].waiting = passengers;
+	
+		while(remaining>0){
+			this.stations[i].waiting++;
+			remaining--;
+			i++;	
+		}
+
+		for (i=0; i<8; i++){
+			System.out.println(this.stations[i].waiting+" passengers waiting at station "+this.stations[i].name);
+		}
 	}
 
 	////////////////// Create All 8 Stations //////////////////
@@ -33,79 +69,21 @@ public class Caltrain{
 
 	////////////////// Create All Trains //////////////////
 	public void train_init(){
+		Semaphore sem;
+		int x;
 		for(int i=0; i<16; i++){
 			// Get input
 			System.out.println("Train "+(i+1));
 			System.out.print("Number of Seats: ");
-			int x = reader.nextInt();
-			this.trains[i] = new Train(x);
+			x = reader.nextInt();
+
+			sem = new Semaphore(x);
+
+			System.out.println("Created Train "+(i+1)+": "+x+" seats");
+			this.trains[i] = new Train("Train"+i, sem, x, stations);
 		}
 	}
-	////////////////// Open All Stations //////////////////
-	public void open_stations(){
-		
-		for(int i=0; i<8; i++){
-			stations[i].open();
-		}
 
-	}
 
-	////////////////// A train arrives at the station; count=seats and is treated as an input //////////
-	public void station_load_train(int count){	
-		/* Has no available seat, just let the train pass by. */
-		if (count <= 0)
-			return;
-
-		lock_acquire(&station->lock);
-		station->free_seats = count;
-		station->boarding_passengers = 0;
-
-		while (station->waiting_passengers > 0 && station->free_seats > 0) {
-			/* Notify there are available seats. */
-			cond_signal(&station->has_waiting_seats, &station->lock);
-			lock_release(&station->lock);
-			lock_acquire(&station->lock);
-		}
-
-			
-		/* Waiting until all passengers onboarded. */
-		while (station->boarding_passengers > 0) {
-			lock_release(&station->lock);
-			lock_acquire(&station->lock);
-	    }
-
-		/* Train is leaving, mark there is no seat available. */
-		station->free_seats = 0;
-		lock_release(&station->lock);		
-	}
-
-	////////////////// station waits for the train //////////////////
-	public void station_wait_for_train(){
-		lock_acquire(&station->lock);
-
-		/* Wait for seat. */
-		station->waiting_passengers = station->waiting_passengers + 1;
-		
-		while (station->free_seats <= 0) {
-			cond_wait(&station->has_waiting_seats, &station->lock);
-		}
-
-		/* Book the seat. */
-		station->free_seats = station->free_seats - 1;
-		/* Boarding */
-	
-		station->boarding_passengers = station->boarding_passengers + 1;
-		lock_release(&station->lock);
-		// Will call station_on_board after this returns.
-	}
-
-	////////////////// Passengers are seated //////////////////
-	public void station_on_board(){
-		// Let train know passengers are on board
-		lock_acquire(&station->lock);
-		station->waiting_passengers = station->waiting_passengers - 1;
-		station->boarding_passengers = station->boarding_passengers - 1;
-		lock_release(&station->lock);
-	}
 
 }
