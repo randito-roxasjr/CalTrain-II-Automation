@@ -23,6 +23,8 @@ class Station{
 	Station(String N){
 		this.Name = N;
 		System.out.println("Created Station " + this.Name);
+		free_seats = 0;
+		boarding = 0;
 	}
 	
 	
@@ -52,7 +54,7 @@ class Station{
 		free_seats = count;
 		hasTrain = true;
 		while(waiting!=0 && free_seats!=0) {
-			seats.signal();
+			seats.signalAll();
 			lock.unlock();
 			lock.lock();
 		}

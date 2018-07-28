@@ -3,9 +3,4 @@
 
 public class Driver{
 	
-	public static void main(String[]args){
-		//instantiate caltrain
-		Caltrain caltrain = new Caltrain();
-		caltrain.run();
-	}
 }
