@@ -1,4 +1,3 @@
-package Randi;
 import java.util.ArrayList;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -9,9 +8,11 @@ class Station{
 	String Name;
 	private final Lock lock = new ReentrantLock(); //mutex
 	private final Condition train = lock.newCondition(); //acts like semaphore for train
+	private final Condition waiting_train = lock.newCondition(); //acts like semaphore for waiting train
 	private final Condition seats = lock.newCondition(); //acts like semaphore for free_seats
 	
-	private boolean hasTrain = false;
+	boolean hasTrain = false;
+	boolean hasWaitingTrain = false;
 	
 	int free_seats;
 	int waiting;
@@ -21,6 +22,18 @@ class Station{
 	Station(String N){
 		this.Name = N;
 		System.out.println("Created Station " + this.Name);
+	}
+	
+	
+	public void checkWaiting() {
+		while(hasWaitingTrain) {
+			try {
+				waiting_train.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		train.signal();
 	}
 	
 	public void waitEmpty() {
@@ -33,7 +46,7 @@ class Station{
 	}
 	
 	////////////////// A train arrives at the station; count=seats and is treated as an input //////////
-	public void station_load_train(int count){
+	public void station_load_train(int count, Train tren){
 		lock.lock();
 		free_seats = count;
 		hasTrain = true;
@@ -47,6 +60,9 @@ class Station{
 			lock.lock();
 		}
 		free_seats=0;
+		hasTrain=false;
+		tren.free_seats -= boarding;
+		//train.signal();
 		lock.unlock();
 	}
 

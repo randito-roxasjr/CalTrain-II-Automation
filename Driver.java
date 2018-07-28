@@ -1,5 +1,3 @@
-package Randi;
-
 //package controller;
 //import model.Caltrain;
 
