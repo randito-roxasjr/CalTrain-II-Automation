@@ -1,23 +1,16 @@
+package Randi;
+
 import java.util.concurrent.*;
 
 class Train extends Thread{
 	Station[] stations;
 	Station curr_station;
-<<<<<<< HEAD
-<<<<<<< HEAD
 	Station next_station;
-=======
-	int max_seats;
->>>>>>> c2bf62702e58ceed998e74c3f4bf764349d99bac
-=======
-	int max_seats;
->>>>>>> c2bf62702e58ceed998e74c3f4bf764349d99bac
 	int free_seats;
 	String name;
 
 	////////////////// Constructor station_init //////////////////
 	public Train(String name, int N, Station[] stations){
-		this.max_seats = N;
 		this.free_seats = N;
 		this.stations = stations;
 		this.name = name;

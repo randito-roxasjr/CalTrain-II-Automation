@@ -1,3 +1,4 @@
+package Randi;
 import java.util.concurrent.*;
 
 class Passenger extends Thread{
