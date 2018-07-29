@@ -55,7 +55,7 @@ class Station{
 		hasTrain = true;
 		hasWaitingTrain = false;
 
-		System.out.println("Passenger " + name + " has entered station " + this.Name);
+		System.out.println(name + " has entered station " + this.Name);
 	}
 	
 	////////////////// A train arrives at the station; count=seats and is treated as an input //////////
@@ -66,7 +66,7 @@ class Station{
 
 		try{
 			seats.acquire();
-			System.out.println("Passenger boarding at train " + tren.name + " station "+ this.Name);
+			System.out.println("Passenger boarding in " + tren.name + " at station "+ this.Name);
 		}
 		catch (InterruptedException e){
 			e.printStackTrace();

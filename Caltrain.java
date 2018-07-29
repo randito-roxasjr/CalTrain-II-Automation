@@ -86,7 +86,7 @@ public class Caltrain{
 
 		while(undispatchedTrain!=0) {
 			while(stations[0].hasTrain);
-			System.out.println("Train dispachted " + counter);
+			System.out.println("Train dispatched " + counter);
 			dispatchTrain(counter);
 			counter++;
 			undispatchedTrain--;
