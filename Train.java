@@ -36,7 +36,7 @@ class Train extends Thread{
 				
 			curr_station = stations[i];
 			curr_station.waitEmpty(name);
-			System.out.println("nakalabas WAITEMPTY " + name);
+			System.out.println(name+" can now go to station");
 
 			curr_station.station_load_train(free_seats, this);
 			System.out.println("Passengers loaded in " + name);

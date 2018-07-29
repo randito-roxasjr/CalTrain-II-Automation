@@ -45,7 +45,7 @@ class Station{
 		while(hasTrain){
 			try {
 				//train.acquire();
-				System.out.println("Currently " + name + " is waiting for "+ this.Name);
+				System.out.println(name + " is currently waiting for train in "+ this.Name);
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
