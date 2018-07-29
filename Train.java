@@ -31,12 +31,10 @@ class Train extends Thread{
 			next_station = stations[i];
 			if(!isFirstTrain) {
 				System.out.println("check waiting" + name);
-				next_station.checkWaiting();
+				next_station.checkWaiting(name);
 			}
-			else {
-				System.out.println("nag false ako!");
+			else 
 				isFirstTrain = false;
-			}
 				
 			curr_station = stations[i];
 			curr_station.waitEmpty(name);
@@ -45,8 +43,8 @@ class Train extends Thread{
 			System.out.println("load train ok " + name);
 			
 		}
-		//while(curr_station.waiting!=0 || curr_station.Name.equalsIgnoreCase("Roosevelt"));
-		while(!curr_station.Name.equalsIgnoreCase("Baclaran"));
+		while(curr_station.waiting!=0 || !curr_station.Name.equalsIgnoreCase("Baclaran"));
+		//while(!curr_station.Name.equalsIgnoreCase("Baclaran"));
 		System.out.println("I exited" + name + " " + curr_station.Name);
 		//if wala ng passengers sa mga station and nasa dulong station na ko, i stop
 	}

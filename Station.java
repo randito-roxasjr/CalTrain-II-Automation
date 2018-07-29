@@ -29,9 +29,11 @@ class Station{
 	}
 	
 	
-	public void checkWaiting() {
+	public void checkWaiting(String name) {
+		lock.lock();
 		while(hasWaitingTrain) {
 			try {
+				System.out.println("Now,  " + name + " is waiting for witing "+ this.Name);
 				waiting_train.await();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -39,19 +41,24 @@ class Station{
 		}
 		hasTrain = false;
 		train.signal();
+		lock.unlock();
 	}
 	
 	public void waitEmpty(String name) {
 		hasWaitingTrain = true;
+		lock.lock();
 		while(hasTrain)
 			try {
-				System.out.println("hello " + name + " awaiting");
+				System.out.println("Currently  " + name + " is waiting for "+ this.Name);
 				train.await();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+		hasTrain = true;
 		hasWaitingTrain = false;
-
+		waiting_train.signal();
+		lock.unlock();
+		System.out.println("nakapasok na " + name + "sa station " + this.Name);
 	}
 	
 	////////////////// A train arrives at the station; count=seats and is treated as an input //////////
@@ -61,17 +68,20 @@ class Station{
 		free_seats = count;
 		hasTrain = true;
 		while(waiting!=0 && free_seats!=0) {
-			seats.signalAll();
+			
+			seats.signal();
 			lock.unlock();
 			lock.lock();
 		}
-		System.out.println("passenger boarding");
+		System.out.println("remain waiting at " + this.Name + " is " + waiting); 
+		System.out.println("passenger boarding at train" + tren.name + " station "+ this.Name);
 		while(boarding!=0) {
 			lock.unlock();
 			lock.lock();
 		}
-		System.out.println("train leaving");
+		System.out.println("train leavin at train" + tren.name + " station " + this.Name);
 		free_seats=0;
+		
 		hasTrain=false;
 		tren.free_seats -= boarding;
 		//train.signal();
@@ -83,7 +93,7 @@ class Station{
 		// If train has arrived and there are enough seats		
 		// else, continue to wait
 		lock.lock();
-		waiting ++;
+		System.out.println("nakakuha ako lock");
 		while(free_seats<=0) { //free_seats = 0 means 1) there is no train and 2) there are no free_seats
 			try {
 				seats.await();
@@ -93,17 +103,25 @@ class Station{
 				e.printStackTrace();
 			}
 		}
-		hasTrain = true;
+		free_seats--;
+		waiting--;
 		boarding ++;
 		lock.unlock();
+		System.out.println("from " + Name + " nakakpasok ko train!" + free_seats);
+		lock.lock();
+		hasTrain = true;
+		
+		
+		lock.unlock();
+		
 	}
 	
 	////////////////// passenger checks if train successfully arrives on a station //////////////////
 	public boolean station_check_station() {
-		if(hasTrain && free_seats<=0)
-			return true;
-		else
+		if(hasTrain || free_seats<=0)
 			return false;
+		else
+			return true;
 	}
 	
 	////////////////// passenger gets off train and free seat increments //////////////////
@@ -116,7 +134,9 @@ class Station{
 	////////////////// Passengers are seated //////////////////
 	public void station_on_board(){
 		// Let train know passengers are on board
-		;
+		lock.lock();
+		boarding--;
+		lock.unlock();
 	}
 	
 }

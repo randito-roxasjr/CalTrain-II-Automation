@@ -83,14 +83,14 @@ public class Caltrain{
 		//dispatchTrain(1);
 		while(undispatchedTrain!=0) {
 			while(stations[0].hasTrain);
+			System.out.println("Trin dispachted " + counter);
 			dispatchTrain(counter);
 			counter++;
 			undispatchedTrain--;
 		}
-		/*while(total_passenger>0) {
-			
+		while(total_passenger>0) {
 		}
-		*/
+		
 		
 	}
 	
