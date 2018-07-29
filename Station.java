@@ -1,20 +1,19 @@
 import java.util.ArrayList;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.*;
 
 class Station{
+	//private Thread t;
 	String Name;
-	private Semaphore waiting_train = new Semaphore(1); //Waiting train
-	private Semaphore train = new Semaphore(1); //semaphore for train
-	private Semaphore seats; //semaphore for free_seats
+	private Semaphore train = new Semaphore(1); //acts like semaphore for train
+	private Semaphore waiting_train = new Semaphore(1); //acts like semaphore for waiting train
+	private Semaphore seats; //acts like semaphore for free_seats
 	
-
 	boolean hasTrain = false;
 	boolean hasWaitingTrain = false;
 	
-	int curr_train=-1;
 	int free_seats;
 	int waiting;
 	int boarding;
@@ -22,86 +21,102 @@ class Station{
 	////////////////// Contructor station_init //////////////////
 	Station(String N){
 		this.Name = N;
-		this.state = 1;
 		System.out.println("Created Station " + this.Name);
 		free_seats = 0;
 		boarding = 0;
+		
 	}
 	
-	public void waitEmpty() {
-		while(hasTrain)
+	
+	public void checkWaiting(String name) {
+		while(hasWaitingTrain) {
 			try {
-				train.wait();
+				System.out.println("Now, " + name + " is waiting for "+ this.Name);
+				Thread.sleep(10);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+		}
+		hasTrain = false;
+	}
+	
+	public void waitEmpty(String name) {
+		hasWaitingTrain = true;
+		while(hasTrain){
+			try {
+				//train.acquire();
+				System.out.println("Currently " + name + " is waiting for "+ this.Name);
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+//		train.release();
+		hasTrain = true;
+		hasWaitingTrain = false;
+
+		System.out.println("Passenger " + name + " has entered station " + this.Name);
 	}
 	
 	////////////////// A train arrives at the station; count=seats and is treated as an input //////////
-	public void station_load_train(Train t){
+	public void station_load_train(int count, Train tren){
+		this.seats = new Semaphore(count);
+		free_seats = count;
+		hasTrain = true;
+
 		try{
-			train.acquire();	//Get train
-			this.hasTrain = true;
-			this.hasWaitingTrain = false;
-
-			System.out.println(t.name+" has arrived in "+this.Name);
-
-			//	LOAD TRAIN
-			free_seats = t.free_seats;
-			seats = new Semaphore(free_seats);
-			
 			seats.acquire();
-
-		} catch(InterruptedException e){
-			System.out.println(e);
+			System.out.println("Passenger boarding at train " + tren.name + " station "+ this.Name);
 		}
-	
+		catch (InterruptedException e){
+			e.printStackTrace();
+		}
+		
+		free_seats=0;
+		hasTrain=false;
+		tren.free_seats -= boarding;
+		seats.release();
 	}
 
 	////////////////// station waits for the train //////////////////
-	public void station_wait_for_train(Train[] t){
-		this.curr_train++;
-		this.curr_train=curr_train%15;
-		try{
-			waiting_train.acquire();
-			this.hasWaitingTrain = true;
-			System.out.println(this.Name+" is waiting for "+t[curr_train].name);
-			
-		} catch (InterruptedException e){
-			System.out.println(e);
-		}
-
-		waiting_train.release();
+	public void station_wait_for_train(){
+		// If train has arrived and there are enough seats		
+		// else, continue to wait
 		
+		try{
+			Thread.sleep(10);
+			System.out.println(this.Name+" is waiting for a train");
+		}
+		catch (InterruptedException e){
+			e.printStackTrace();
+		}
+		
+		free_seats--;
+		waiting--;
+		boarding ++;
+		
+		System.out.println("Train arrives in " + Name + " station");
+		hasTrain = true;
 	}
 	
 	////////////////// passenger checks if train successfully arrives on a station //////////////////
 	public boolean station_check_station() {
 		if(hasTrain || free_seats<=0)
-			return true;
-		else
 			return false;
+		else
+			return true;
 	}
 	
 	////////////////// passenger gets off train and free seat increments //////////////////
 	public void station_get_off() {
-		//lock.lock();
-		free_seats++;
-		//lock.unlock();		
+		seats.release();
+		free_seats++;	
 	}
 
 	////////////////// Passengers are seated //////////////////
 	public void station_on_board(){
 		// Let train know passengers are on board
-		this.free_seats--;
-		this.waiting--;
-		System.out.println("Passenger has boarded in "+this.Name);
-		
-		if (this.free_seats == 0){
-			hasTrain=false;
-		}
-
-		train.release();
+		boarding--;
 	}
 	
 }

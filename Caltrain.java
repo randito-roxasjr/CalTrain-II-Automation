@@ -53,52 +53,48 @@ public class Caltrain{
 			System.out.println("Train "+(i+1));
 			System.out.print("Number of Seats: ");
 			int x = reader.nextInt();
-			trains[i] = new Train("Train "+(i+1), x);
+			trains[i] = new Train("Train "+(i+1),x,stations,true);
+			
 		}
 	}
-
-	public static int check_all_stations(){
-		int N=0;	
-
-		for (int i=0; i<8; i++){
-			N += stations[i].waiting;
-		}
-		return N;
-	}
-
+	
 	static void dispatchTrain(int i) {
 		trains[i].start();
 	}
 	
 	public static void main(String[]args) {
+		Scanner reader =  new Scanner(System.in);
+		Passenger passengers[];
 		station_init();
 		train_init();
 
-		Scanner reader =  new Scanner(System.in);
-		
 		System.out.println("Total Passengers: ");
+		
 		int x = reader.nextInt();
-
-		Passenger passengers[] = new Passenger[x];
+		int total_passenger = x;
+		int undispatchedTrain = 15;
+		int counter=1;
+		passengers = new Passenger[x];
 		distribute_pass(x);
+
 		for(int i = 0; i<x ; i++) {
 			passengers[i] = new Passenger("Pass# "+(i+1), stations[i%8]);
-			passengers[i].start(); 
+			passengers[i].start();
 		}
-		
-		dispatchTrain(0);
-		
-		while(undispatchedTrain!=0){
-			stations[0].station_wait_for_train(trains);
-			stations[1].station_wait_for_train(trains);
-			stations[2].station_wait_for_train(trains);
-			stations[3].station_wait_for_train(trains);
-			stations[4].station_wait_for_train(trains);
-			stations[5].station_wait_for_train(trains);
-			stations[6].station_wait_for_train(trains);
-			stations[7].station_wait_for_train(trains);
 
+		dispatchTrain(0);
+
+		while(undispatchedTrain!=0) {
+			while(stations[0].hasTrain);
+			System.out.println("Train dispachted " + counter);
+			dispatchTrain(counter);
+			counter++;
+			undispatchedTrain--;
 		}
+		while(total_passenger>0) {
+		}
+		
+		
 	}
 	
 
