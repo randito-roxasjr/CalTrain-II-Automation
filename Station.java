@@ -5,7 +5,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.*;
 
 class Station{
-	private int state;
 	String Name;
 	private Semaphore waiting_train = new Semaphore(1); //Waiting train
 	private Semaphore train = new Semaphore(1); //semaphore for train
@@ -40,45 +39,40 @@ class Station{
 	
 	////////////////// A train arrives at the station; count=seats and is treated as an input //////////
 	public void station_load_train(Train t){
-		if (state != 0){
-			try{
-				train.acquire();	//Get train
-				this.hasTrain = true;
-				this.hasWaitingTrain = false;
+		try{
+			train.acquire();	//Get train
+			this.hasTrain = true;
+			this.hasWaitingTrain = false;
 
-				System.out.println(t.name+" has arrived in "+this.Name);
+			System.out.println(t.name+" has arrived in "+this.Name);
 
-				//	LOAD TRAIN
-				free_seats = t.free_seats;
-				seats = new Semaphore(free_seats);
-				
-				seats.acquire();
+			//	LOAD TRAIN
+			free_seats = t.free_seats;
+			seats = new Semaphore(free_seats);
+			
+			seats.acquire();
 
-			} catch(InterruptedException e){
-				System.out.println(e);
-			}
-
-			this.station_on_board();
+		} catch(InterruptedException e){
+			System.out.println(e);
 		}
 	
 	}
 
 	////////////////// station waits for the train //////////////////
 	public void station_wait_for_train(Train[] t){
-		if (state != 0){
-			this.curr_train++;
-			this.curr_train=curr_train%15;
-			try{
-				waiting_train.acquire();
-				this.hasWaitingTrain = true;
-				System.out.println(this.Name+" is waiting for "+t[curr_train].name);
-				
-			} catch (InterruptedException e){
-				System.out.println(e);
-			}
-
-			waiting_train.release();
+		this.curr_train++;
+		this.curr_train=curr_train%15;
+		try{
+			waiting_train.acquire();
+			this.hasWaitingTrain = true;
+			System.out.println(this.Name+" is waiting for "+t[curr_train].name);
+			
+		} catch (InterruptedException e){
+			System.out.println(e);
 		}
+
+		waiting_train.release();
+		
 	}
 	
 	////////////////// passenger checks if train successfully arrives on a station //////////////////
@@ -105,7 +99,6 @@ class Station{
 		
 		if (this.free_seats == 0){
 			hasTrain=false;
-			state = 0;
 		}
 
 		train.release();

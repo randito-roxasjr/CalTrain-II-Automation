@@ -20,16 +20,35 @@ class Train extends Thread{
 		return this.free_seats;
 	}
 
-	public void run(Station[] s) {
-		
-		this.stations = s;
+	public void run() {
 
-		i = (i+1) % 7; // mod 8 since only 8 stations available
+		int i=-1; //train has not been dispatched.
 
-		next_station = stations[i+1];
-		curr_station = stations[i];
-		curr_station.station_load_train(this);
-		
+		do {
+
+			i = (i+1) % 8; // mod 8 since only 8 stations available
+
+			next_station = stations[i];
+
+			if(!isFirstTrain) {
+				System.out.println("check waiting" + name);
+				next_station.checkWaiting(name);
+			}
+
+			else 
+				isFirstTrain = false;
+
+			curr_station = stations[i];
+			curr_station.waitEmpty(name);
+			System.out.println("nakalabas WAITEMPTY " + name);
+			curr_station.station_load_train(free_seats, this);
+			System.out.println("load train ok " + name);
+		}
+		while(curr_station.waiting!=0 || !curr_station.Name.equalsIgnoreCase("Baclaran"));
+		//while(!curr_station.Name.equalsIgnoreCase("Baclaran"));
+
+		System.out.println("I exited" + name + " " + curr_station.Name);
 		//if wala ng passengers sa mga station and nasa dulong station na ko, i stop
+
 	}
 }

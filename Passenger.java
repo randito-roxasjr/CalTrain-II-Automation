@@ -12,12 +12,13 @@ class Passenger extends Thread{
 	}
 
 	public void run(){
-		while(count!=0) {
-			if(station.station_check_station()){
-				
+		station.station_on_board();
+		while(count!=0){
+			if(station.station_check_station())
 				count --;
-			}
 		}
+
 		station.station_get_off();
+		System.out.println("Passenger" + name + "dropped off.");
 	}
 }
