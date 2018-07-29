@@ -64,7 +64,7 @@ public class Caltrain{
 		trains[i].start();
 	}
 	
-	public static void main(String[]args) {
+	public static void main(String[]args) throws InterruptedException {
 		Passenger passengers[];
 		station_init();
 		Scanner reader =  new Scanner(System.in);
@@ -82,9 +82,12 @@ public class Caltrain{
 		dispatchTrain(0);
 		//dispatchTrain(1);
 		while(undispatchedTrain!=0) {
-			while(stations[0].hasTrain);
+			stations[0].lock.lock();
+			while(stations[0].hasTrain)
+				stations[0].waiting_train.await();
 			System.out.println("Trin dispachted " + counter);
 			dispatchTrain(counter);
+			stations[0].lock.unlock();
 			counter++;
 			undispatchedTrain--;
 		}

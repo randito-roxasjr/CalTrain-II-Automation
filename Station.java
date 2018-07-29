@@ -7,9 +7,9 @@ import java.util.concurrent.locks.ReentrantLock;
 class Station{
 	//private Thread t;
 	String Name;
-	private final Lock lock = new ReentrantLock(); //mutex
+	final Lock lock = new ReentrantLock(); //mutex
 	private final Condition train = lock.newCondition(); //acts like semaphore for train
-	private final Condition waiting_train = lock.newCondition(); //acts like semaphore for waiting train
+	final Condition waiting_train = lock.newCondition(); //acts like semaphore for waiting train
 	private final Condition seats = lock.newCondition(); //acts like semaphore for free_seats
 	
 	boolean hasTrain = false;
@@ -84,7 +84,7 @@ class Station{
 		
 		hasTrain=false;
 		tren.free_seats -= boarding;
-		//train.signal();
+		train.signal();
 		lock.unlock();
 	}
 
