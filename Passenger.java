@@ -12,10 +12,11 @@ class Passenger extends Thread{
 	}
 
 	public void run(){
-		station.station_wait_for_train();
 		while(count!=0) {
-			if(station.station_check_station())
+			if(station.station_check_station()){
+				
 				count --;
+			}
 		}
 		station.station_get_off();
 	}
