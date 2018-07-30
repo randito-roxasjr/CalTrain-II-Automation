@@ -67,7 +67,6 @@ public class Caltrain{
 		Scanner reader =  new Scanner(System.in);
 		Passenger passengers[];
 		station_init();
-		train_init();
 
 		System.out.println("Total Passengers: ");
 		
@@ -82,7 +81,8 @@ public class Caltrain{
 			passengers[i] = new Passenger("Pass# "+(i+1), stations[i%8]);
 			passengers[i].start();
 		}
-
+		
+		train_init();
 		dispatchTrain(0);
 
 		while(undispatchedTrain!=0) {
