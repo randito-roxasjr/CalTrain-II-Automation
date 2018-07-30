@@ -28,7 +28,7 @@ class Train extends Thread{
 			i = (i+1) % 8; // mod 8 since only 8 stations available
 			next_station = stations[i];
 			if(!isFirstTrain) {
-				System.out.println("Waiting " + name);
+				System.out.println("Waiting " + name + " in next station");
 				next_station.checkWaiting(name);
 			}
 			else 
@@ -36,7 +36,7 @@ class Train extends Thread{
 				
 			curr_station = stations[i];
 			curr_station.waitEmpty(name);
-			System.out.println(name+" can now go to station");
+			System.out.println(name+" arrived at station");
 
 			curr_station.station_load_train(free_seats, this);
 			System.out.println("Passengers loaded in " + name);

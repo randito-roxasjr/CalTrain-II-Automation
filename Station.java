@@ -8,7 +8,7 @@ class Station{
 	//private Thread t;
 	String Name;
 	private Semaphore train = new Semaphore(1); //acts like semaphore for train
-	private Semaphore waiting_train = new Semaphore(1); //acts like semaphore for waiting train
+    Semaphore waiting_train = new Semaphore(1); //acts like semaphore for waiting train
 	private Semaphore seats; //acts like semaphore for free_seats
 	
 	boolean hasTrain = false;
@@ -32,12 +32,13 @@ class Station{
 		while(hasWaitingTrain) {
 			try {
 				System.out.println("Now, " + name + " is waiting for "+ this.Name);
-				Thread.sleep(10);
+				waiting_train.acquire();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 		hasTrain = false;
+		//train.signal();
 	}
 	
 	public void waitEmpty(String name) {
@@ -46,7 +47,7 @@ class Station{
 			try {
 				//train.acquire();
 				System.out.println(name + " is currently waiting for train in "+ this.Name);
-				Thread.sleep(10);
+				train.acquire();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -54,8 +55,9 @@ class Station{
 //		train.release();
 		hasTrain = true;
 		hasWaitingTrain = false;
+		waiting_train.release();
 
-		System.out.println(name + " has entered station " + this.Name);
+		System.out.println(name + " can now enter station " + this.Name);
 	}
 	
 	////////////////// A train arrives at the station; count=seats and is treated as an input //////////
@@ -75,7 +77,7 @@ class Station{
 		free_seats=0;
 		hasTrain=false;
 		tren.free_seats -= boarding;
-		seats.release();
+		train.release();
 	}
 
 	////////////////// station waits for the train //////////////////

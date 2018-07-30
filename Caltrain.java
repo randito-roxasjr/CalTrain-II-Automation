@@ -1,5 +1,6 @@
 import java.util.Scanner;
 
+
 public class Caltrain{
 		
 	static Station[] stations = new Station[8];
@@ -85,7 +86,13 @@ public class Caltrain{
 		dispatchTrain(0);
 
 		while(undispatchedTrain!=0) {
-			while(stations[0].hasTrain);
+			while(stations[0].hasTrain)
+				try{
+					stations[0].waiting_train.acquire();
+				} 
+				catch (InterruptedException e){
+					e.printStackTrace();
+				}
 			System.out.println("Train dispatched " + counter);
 			dispatchTrain(counter);
 			counter++;
