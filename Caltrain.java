@@ -79,10 +79,16 @@ public class Caltrain{
 
 		for(int i = 0; i<x ; i++) {
 			passengers[i] = new Passenger("Pass# "+(i+1), stations[i%8]);
+			
+		}
+
+		train_init();
+
+		for(int i=0; i<x ; i++) {	
 			passengers[i].start();
 		}
-		
-		train_init();
+
+
 		dispatchTrain(0);
 
 		while(undispatchedTrain!=0) {
