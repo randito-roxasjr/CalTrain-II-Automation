@@ -7,6 +7,12 @@ import java.util.concurrent.locks.ReentrantLock;
 class Station{
 	//private Thread t;
 	String Name;
+
+	//know what train and how many will drop
+	String train_drop[] = new String[8];
+	int num_drop[] = new int[8];
+
+
 	Train tren;
 	final Lock lock = new ReentrantLock(); //mutex
 	final Condition train = lock.newCondition(); //acts like semaphore for train
