@@ -1,11 +1,15 @@
 package Randi;
 
 import java.util.Scanner;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Caltrain{
 		
 	static Station[] stations = new Station[8];
 	static Train[] trains = new Train[16];
+	
 	
 	//////////////////Distribute Passengers //////////////////
 	static void distribute_pass(int N){
@@ -58,6 +62,7 @@ public class Caltrain{
 			trains[i] = new Train("Train"+(i+1),x,stations,true);
 			
 		}
+		trains[0].isTrainOne = true;
 	}
 	
 	static void dispatchTrain(int i) {
@@ -66,6 +71,8 @@ public class Caltrain{
 	
 	public static void main(String[]args) throws InterruptedException {
 		Passenger passengers[];
+		Lock l = new ReentrantLock();
+		Condition dispatch = l.newCondition();
 		station_init();
 		Scanner reader =  new Scanner(System.in);
 		int x = reader.nextInt();
@@ -75,25 +82,29 @@ public class Caltrain{
 		passengers = new Passenger[x];
 		distribute_pass(x);
 		for(int i = 0; i<x ; i++) {
-			passengers[i] = new Passenger("Pass#"+(i+1), stations[i%8]);
+			passengers[i] = new Passenger("Pass#"+(i+1), stations[i%8], stations[(i+5)%8]);
 			passengers[i].start();
 		}
 		train_init();
 		dispatchTrain(0);
-		//dispatchTrain(1);
+		System.out.println("Train " + 1 + " dispatched");
+		
+		//function as dispatcher
 		while(undispatchedTrain!=0) {
+			System.out.println("attempt locking");
 			stations[0].lock.lock();
-			while(stations[0].hasTrain)
-				stations[0].waiting_train.await();
-			System.out.println("Trin dispachted " + counter);
+			while(stations[0].dispatchRdy) {
+				System.out.println("Train " + (counter+1) + " is waiting for dispatch");
+				stations[0].dispatch.await();
+			}
+			System.out.println("Train " + (counter+1) + " dispatched");
 			dispatchTrain(counter);
+			stations[0].dispatchRdy = true;
 			stations[0].lock.unlock();
 			counter++;
 			undispatchedTrain--;
-		}
-		while(total_passenger>0) {
-		}
-		
+			
+		}		
 		
 	}
 	

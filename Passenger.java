@@ -4,22 +4,21 @@ import java.util.concurrent.*;
 class Passenger extends Thread{
 	private String name;
 	private Station station;
-	private int count;
+	private Station drop_station;
+	private Train train;
 
-	Passenger(String name, Station station){
+	Passenger(String name, Station station, Station drop_station){
 		this.name = name;
 		this.station = station;
-		this.count = 5;
+		this.drop_station = drop_station;
 	}
 
 	public void run(){
-		station.station_wait_for_train();
+		train = station.station_wait_for_train();
 		station.station_on_board();
-		while(count!=0) {
-			if(station.station_check_station())
-				count --;
-		}
-		station.station_get_off();
+		
+		while(drop_station.station_check_station(train.curr_station)); 
+		drop_station.station_get_off();
 		System.out.println("Passenger" + name + "dropped off.");
 		
 	}
