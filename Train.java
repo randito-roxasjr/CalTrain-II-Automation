@@ -6,10 +6,11 @@ class Train extends Thread{
 	Station[] stations;
 	Station curr_station=null;
 	Station next_station;
-	Station prev_station;
+	Station last_station;
 	int free_seats;
 	String name;
 	boolean isFirstTrain;
+	boolean isLastTrain=false;
 	boolean hasLastTrainCome = false;
 	boolean isTrainOne=false;
 
@@ -54,15 +55,34 @@ class Train extends Thread{
 			System.out.println(name + " is check waiting at " + next_station.Name);
 			System.out.println("currently at " + curr_station.Name);
 			
-			if(curr_station.Name.equalsIgnoreCase("Baclaran") && !hasLastTrainCome && isTrainOne)
+			if(curr_station.Name.equalsIgnoreCase("Baclaran") && !hasLastTrainCome && isTrainOne && next_station.lastTrainNotDispatched){
 				next_station.waitForLastTrain();
-			next_station.checkWaiting(name, curr_station, isFirstTrain);
+				System.out.println("nakalaya na train1");
+				isFirstTrain = false;
+				hasLastTrainCome = true;
+			}
+				
+			next_station.checkWaitingWaiting(name, curr_station, isFirstTrain);
 			curr_station.getNextTrain(isFirstTrain);
+			if(isLastTrain) {
+				System.out.println("Continue train1 at " + curr_station.Name);
+				curr_station.lock.lock();
+				if(curr_station.lastTrainNotDispatched) {
+					curr_station.lastTrainNotDispatched = false;
+					curr_station.last_Train.signal();
+					System.out.println("wala namang train1 e!");
+				}
+				curr_station.lock.unlock();
+				System.out.println("ok!");
+				isLastTrain = false;
+			}
+			curr_station = stations[i];
+			next_station.checkWaiting(name, curr_station, isFirstTrain);
+			
 			isFirstTrain = false;
 			
 		}
 		while(curr_station.waiting!=0 || !curr_station.Name.equalsIgnoreCase("Baclaran"));
-		//while(!curr_station.Name.equalsIgnoreCase("Baclaran"));
 		System.out.println("I exited" + name + " " + curr_station.Name);
 		//if wala ng passengers sa mga station and nasa dulong station na ko, i stop
 	}

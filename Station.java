@@ -7,24 +7,24 @@ import java.util.concurrent.locks.ReentrantLock;
 class Station{
 	//private Thread t;
 	String Name;
-
-	//know what train and how many will drop
-	String train_drop[] = new String[8];
-	int num_drop[] = new int[8];
-
-
 	Train tren;
 	final Lock lock = new ReentrantLock(); //mutex
 	final Condition train = lock.newCondition(); //acts like semaphore for train
 	final Condition waiting_train = lock.newCondition(); //acts like semaphore for waiting train
-	private final Condition seats = lock.newCondition(); //acts like semaphore for free_seats
+	final Condition waiting_waiting_train = lock.newCondition();
+	final Condition seats = lock.newCondition(); //acts like semaphore for free_seats
 	final Condition board = lock.newCondition();
+	final Condition passenger_drop = lock.newCondition();
 	final Condition next_station = lock.newCondition();
 	final Condition last_Train = lock.newCondition();
 	final Condition dispatch = lock.newCondition();
 	
+	String train_drop[] = new String[16];
+	int num_drop[] = new int[16];
+	
 	boolean hasTrain = false;
 	boolean hasWaitingTrain = false;
+	boolean hasWaitingWaitingTrain = false;
 	boolean isReadyToBoard = false;
 	boolean hasDrop = false;
 	boolean dispatchRdy = true;
@@ -43,26 +43,34 @@ class Station{
 		
 	}
 	
-	
+	public void signal_first_train()
+	{
+		lock.lock();
+		lastTrainNotDispatched = false;
+		last_Train.signal();
+		lock.unlock();
+	}
+		
 	public void waitForLastTrain() {
 		lock.lock();
 		while(lastTrainNotDispatched) {
 			try {
-				System.out.println("Train1 is waiting for the last train!");
+				System.out.println("at " + Name + " Train1 is waiting for the last train!");
 				last_Train.await();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+		System.out.println("Train 1 is free!");
 		lock.unlock();
 	}
 	
-	public void checkWaiting(String name, Station curr_station, boolean isFirstTrain) {
+	public void checkWaitingWaiting(String name, Station curr_station, boolean isFirstTrain) {
 		lock.lock();
-		while(hasWaitingTrain) {
+		while(hasWaitingWaitingTrain) {
 			try {
-				System.out.println("Now,  " + name + " is waiting for waiting "+ this.Name);
-				waiting_train.await();
+				System.out.println("Alright,  " + name + " is waiting for waiting waiting"+ this.Name);
+				waiting_waiting_train.await();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -78,18 +86,42 @@ class Station{
 			dispatchRdy = false;
 			dispatch.signal();
 			System.out.println("dipatch the next train!");
+			
 		}
 			
-		else if(hasTrain) {
+		else if(hasWaitingTrain) {
+			System.out.println("get next train to enter " + Name);
 			train.signal();
 		}
+		Integer num = Integer.parseInt(tren.name.substring(6))-1;
+		this.num_drop[num] = 0;
+		
 		lock.unlock();
 	}
 	
+	public void checkWaiting(String name, Station curr_station, boolean isFirstTrain) {
+		lock.lock();
+		hasWaitingWaitingTrain = true;
+		while(hasWaitingTrain) {
+			try {
+				System.out.println("Now,  " + name + " is waiting for waiting "+ this.Name);
+				waiting_train.await();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		hasWaitingTrain = true;
+		hasWaitingWaitingTrain = false;
+		waiting_waiting_train.signal();
+		lock.unlock();
+	}
+	
+
 	public void waitEmpty(String name, Train tren) {
 		
-		hasWaitingTrain = true;
+		
 		lock.lock();
+		hasWaitingTrain = true;
 		while(hasTrain)
 			try {
 				System.out.println("Currently  " + name + " is waiting for "+ this.Name);
@@ -103,7 +135,7 @@ class Station{
 		waiting_train.signal();
 		
 		lock.unlock();
-		System.out.println("nakapasok na " + name + "sa station " + this.Name);
+		System.out.println("nakapasok na " + name + " sa station " + this.Name);
 	}
 	
 	////////////////// A train arrives at the station; count=seats and is treated as an input //////////
@@ -112,8 +144,18 @@ class Station{
 		System.out.println("acquired lock at station " + this.Name + " with free seats:" + count);
 		free_seats = count;
 		hasTrain = true;
+		int num = Integer.parseInt(tren.name.substring(6))-1;
+		System.out.println("number of passengers to drop " + this.num_drop[num]);
+		tren.free_seats += this.num_drop[num];
+		while(this.num_drop[num] > 0) {
+			this.passenger_drop.signal();
+			lock.unlock();
+			lock.lock();
+		}
+		System.out.println("Update free seats " + this.Name + " with free seats:" + free_seats + " by " + tren.name);
+		
 		while(waiting!=0 && free_seats!=0 || hasDrop) {
-			
+	
 			seats.signal();
 			lock.unlock();
 			lock.lock();
@@ -162,6 +204,15 @@ class Station{
 		
 	}
 	
+	public void incrementDropOff(String name) {
+		lock.lock();
+		Integer num = Integer.parseInt(name.substring(6))-1;
+		this.train_drop[num] = name;
+		this.num_drop[num]++;
+		lock.unlock();
+	}
+	
+	
 	////////////////// passenger checks if train successfully arrives on a station //////////////////
 	public boolean station_check_station(Station curr_station) {
 		if(curr_station.Name.equalsIgnoreCase(Name))
@@ -171,9 +222,24 @@ class Station{
 	}
 	
 	////////////////// passenger gets off train and free seat increments //////////////////
-	public void station_get_off() {
+	public void station_get_off(String pass_train) {
 		lock.lock();
+		
+		do {
+			try {
+				this.passenger_drop.await();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}while(!this.tren.name.equalsIgnoreCase(pass_train));
+	
 		free_seats++;
+		Integer num = Integer.parseInt(tren.name.substring(6))-1;
+		this.num_drop[num]--;
+		System.out.println("FS: " + free_seats + " ND: " + num_drop[num]);
+	
 		lock.unlock();		
 	}
 	

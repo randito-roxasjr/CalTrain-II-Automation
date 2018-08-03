@@ -15,11 +15,12 @@ class Passenger extends Thread{
 
 	public void run(){
 		train = station.station_wait_for_train();
+		drop_station.incrementDropOff(train.name);
 		station.station_on_board();
 		
-		while(drop_station.station_check_station(train.curr_station)); 
-		drop_station.station_get_off();
-		System.out.println("Passenger" + name + "dropped off.");
+	//	while(drop_station.station_check_station(train.curr_station)); 
+		drop_station.station_get_off(train.name);
+		System.out.println("Passenger " + name + " dropped off.");
 		
 	}
 }

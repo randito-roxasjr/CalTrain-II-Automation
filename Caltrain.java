@@ -59,9 +59,11 @@ public class Caltrain{
 			System.out.println("Train "+(i+1));
 			System.out.print("Number of Seats: ");
 			int x = reader.nextInt();
-			trains[i] = new Train("Train"+(i+1),x,stations,true);
+			trains[i] = new Train("Train "+(i+1),x,stations,true);
 			
 		}
+		trains[15].isLastTrain = true;
+		trains[15].last_station = stations[7];
 		trains[0].isTrainOne = true;
 	}
 	
