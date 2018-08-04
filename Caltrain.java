@@ -100,6 +100,7 @@ public class Caltrain{
 				stations[0].dispatch.await();
 			}
 			System.out.println("Train " + (counter+1) + " dispatched");
+			//----------- TRAIN DISPATCHES -----------
 			dispatchTrain(counter);
 			stations[0].dispatchRdy = true;
 			stations[0].lock.unlock();

@@ -26,7 +26,6 @@ class Station{
 	boolean hasWaitingTrain = false;
 	boolean hasWaitingWaitingTrain = false;
 	boolean isReadyToBoard = false;
-	boolean hasDrop = false;
 	boolean dispatchRdy = true;
 	boolean lastTrainNotDispatched = true;
 	
@@ -34,7 +33,7 @@ class Station{
 	int waiting;
 	int boarding;
 
-	////////////////// Contructor station_init //////////////////
+	////////////////// Constructor station_init //////////////////
 	Station(String N){
 		this.Name = N;
 		System.out.println("Created Station " + this.Name);
@@ -56,11 +55,13 @@ class Station{
 		while(lastTrainNotDispatched) {
 			try {
 				System.out.println("at " + Name + " Train1 is waiting for the last train!");
+				//----------- TRAIN WAITS -----------
 				last_Train.await();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+		//----------- TRAIN MOVES FROM WAIT -----------
 		System.out.println("Train 1 is free!");
 		lock.unlock();
 	}
@@ -71,11 +72,13 @@ class Station{
 		while(hasWaitingWaitingTrain) {
 			try {
 				System.out.println("Alright,  " + name + " is waiting for waiting waiting"+ this.Name);
+				//----------- TRAIN WAITS -----------
 				waiting_waiting_train.await();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+		//----------- TRAIN MOVES FROM WAIT -----------
 		lock.unlock();
 	}
 	
@@ -108,11 +111,13 @@ class Station{
 		while(hasWaitingTrain) {
 			try {
 				System.out.println("Now,  " + name + " is waiting for waiting "+ this.Name);
+				//----------- TRAIN WAITS -----------
 				waiting_train.await();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+		//----------- TRAIN MOVES FROM WAIT -----------
 		hasWaitingTrain = true;
 		hasWaitingWaitingTrain = false;
 		waiting_waiting_train.signal();
@@ -127,10 +132,12 @@ class Station{
 		while(hasTrain)
 			try {
 				System.out.println("Currently  " + name + " is waiting for "+ this.Name);
+				//----------- TRAIN WAITS -----------
 				train.await();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+		//----------- TRAIN MOVES FROM WAIT -----------
 		hasTrain = true;
 		this.tren = tren;
 		hasWaitingTrain = false;
@@ -148,27 +155,36 @@ class Station{
 		hasTrain = true;
 		int num = Integer.parseInt(tren.name.substring(6))-1;
 		System.out.println("number of passengers to drop " + this.num_drop[num]);
+		//update free seats ni train kung ilan bumaba
 		tren.free_seats += this.num_drop[num];
+		//----------- TRAIN WAITS for passengers to leave-----------
 		while(this.num_drop[num] > 0) {
 			this.passenger_drop.signal();
+			//for each passenger drop signaled, the station.free_seats increments
 			lock.unlock();
 			lock.lock();
 		}
 		System.out.println("Update free seats " + this.Name + " with free seats:" + free_seats + " by " + tren.name);
 		
-		while(waiting!=0 && free_seats!=0 || hasDrop) {
+		//----------- TRAIN WAITS for passengers to prepare for boarding-----------
+		while(waiting!=0 && free_seats!=0) {
 	
 			seats.signal();
+			//for each passenger signaled, the station.free_seats decrements
+			//the number of waiting passengers also decrements.
 			lock.unlock();
 			lock.lock();
 		}
 		System.out.println("remaining waiting at " + this.Name + " is " + waiting); 
 		System.out.println(boarding + " passengers boarding on" + tren.name + " station "+ this.Name);
-		tren.free_seats -= boarding;
 		
+		//the train.free_seats is deducted by the number of people actually boarding
+		tren.free_seats -= boarding;
 		isReadyToBoard = true;
+		//----------- TRAIN WAITS for passengers to actually board-----------
 		while(boarding!=0) {
 			board.signal();
+			//for each boarding passenger signaled, the station.boarding decrements
 			lock.unlock();
 			lock.lock();
 		}
@@ -187,6 +203,7 @@ class Station{
 		System.out.println("nakakuha ako lock");
 		while(free_seats<=0) { //free_seats = 0 means 1) there is no train and 2) there are no free_seats
 			try {
+				//----------- PASSENGER WAITS FOR TRAIN and FREE SEATS -----------
 				seats.await();
 			} 
 			catch (InterruptedException e) {
@@ -194,6 +211,7 @@ class Station{
 				e.printStackTrace();
 			}
 		}
+		//----------- PASSENGER PREPARES TO BOARD -----------
 		free_seats--;
 		waiting--;
 		boarding ++;
@@ -215,20 +233,13 @@ class Station{
 	}
 	
 	
-	////////////////// passenger checks if train successfully arrives on a station //////////////////
-	public boolean station_check_station(Station curr_station) {
-		if(curr_station.Name.equalsIgnoreCase(Name))
-			return false;
-		else
-			return true;
-	}
-	
 	////////////////// passenger gets off train and free seat increments //////////////////
 	public void station_get_off(String pass_train) {
 		lock.lock();
 		
 		do {
 			try {
+				//passenger waits for train to ask if they are going to get off or not
 				this.passenger_drop.await();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -238,15 +249,12 @@ class Station{
 		}while(!this.tren.name.equalsIgnoreCase(pass_train));
 	
 		free_seats++;
+		//PASSENGER LEAVES and updates station.free_seats
 		Integer num = Integer.parseInt(tren.name.substring(6))-1;
 		this.num_drop[num]--;
 		System.out.println("FS: " + free_seats + " ND: " + num_drop[num]);
 	
 		lock.unlock();		
-	}
-	
-	public Train getTrain() {
-		return tren;
 	}
 
 	////////////////// Passengers are seated //////////////////
@@ -255,6 +263,7 @@ class Station{
 		lock.lock();
 		while(!isReadyToBoard) {
 			try {
+				//----------- PASSENGER WAITS for train to signal passengers to actually board -----------
 				board.await();
 			} 
 			catch (InterruptedException e) {
@@ -262,11 +271,14 @@ class Station{
 			}
 		}
 		boarding--;
+		// update the number of boarding passengers left
+		// when the boarding passenger is 0, the train prepares to leave.
 		lock.unlock();
 	}
 	
 	public void exitCircuit() {
 		lock.lock();
+		//------------------- TRAIN EXITS! -----------------------
 		hasWaitingTrain = false;
 		waiting_train.signal();
 		System.out.println("Exit successful!");
