@@ -65,6 +65,7 @@ class Station{
 		lock.unlock();
 	}
 	
+	//before leaving, train checks the waiting for waiting train.
 	public void checkWaitingWaiting(String name, Station curr_station, boolean isFirstTrain) {
 		lock.lock();
 		while(hasWaitingWaitingTrain) {
@@ -99,6 +100,8 @@ class Station{
 		lock.unlock();
 	}
 	
+	//train is next to the next in station, waiting for the waiting train....
+	// [station1]  _thisTrain_  ______  [station2]
 	public void checkWaiting(String name, Station curr_station, boolean isFirstTrain) {
 		lock.lock();
 		hasWaitingWaitingTrain = true;
@@ -116,10 +119,9 @@ class Station{
 		lock.unlock();
 	}
 	
-
+	//train is next to the train in station, waiting for the train in station.
+	// [station1]  _____   _thisTrain_  [station2]
 	public void waitEmpty(String name, Train tren) {
-		
-		
 		lock.lock();
 		hasWaitingTrain = true;
 		while(hasTrain)
@@ -260,6 +262,14 @@ class Station{
 			}
 		}
 		boarding--;
+		lock.unlock();
+	}
+	
+	public void exitCircuit() {
+		lock.lock();
+		hasWaitingTrain = false;
+		waiting_train.signal();
+		System.out.println("Exit successful!");
 		lock.unlock();
 	}
 	

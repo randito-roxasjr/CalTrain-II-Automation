@@ -8,6 +8,8 @@ class Train extends Thread{
 	Station next_station;
 	Station last_station;
 	int free_seats;
+	int max_seats;
+	int counter;
 	String name;
 	boolean isFirstTrain;
 	boolean isLastTrain=false;
@@ -16,10 +18,11 @@ class Train extends Thread{
 
 	////////////////// Constructor station_init //////////////////
 	public Train(String name, int N, Station[] stations, boolean isFirst){
-		this.free_seats = N;
+		this.free_seats = this.max_seats = N;
 		this.stations = stations;
 		this.name = name;
 		this.isFirstTrain = isFirst;
+		this.counter = 0;
 		System.out.println("Created Train: "+this.free_seats+" seats");
 	}
 
@@ -43,11 +46,14 @@ class Train extends Thread{
 		do {
 			sleep(1000);
 			curr_station = stations[i];
+			if(curr_station.Name.equalsIgnoreCase("Roosevelt"))
+				counter = 0;
 			curr_station.waitEmpty(name, this);
 			
 			System.out.println("begin loading " + name);
 			curr_station.station_load_train(free_seats, this);
-			
+			if(free_seats == max_seats)
+				counter++;
 			System.out.println("load train ok " + name);
 			
 			i = (i+1) % 8; // mod 8 since only 8 stations available
@@ -77,12 +83,15 @@ class Train extends Thread{
 				isLastTrain = false;
 			}
 			curr_station = stations[i];
+			
 			next_station.checkWaiting(name, curr_station, isFirstTrain);
 			
 			isFirstTrain = false;
 			
+			
 		}
-		while(curr_station.waiting!=0 || !curr_station.Name.equalsIgnoreCase("Baclaran"));
+		while(counter!=8);
+		next_station.exitCircuit();
 		System.out.println("I exited" + name + " " + curr_station.Name);
 		//if wala ng passengers sa mga station and nasa dulong station na ko, i stop
 	}
