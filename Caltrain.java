@@ -1,9 +1,18 @@
+package Randi;
+
 import java.util.Scanner;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 public class Caltrain{
 		
 	static Station[] stations = new Station[8];
 	static Train[] trains = new Train[16];
+	static View view = new View();
 	
 	//////////////////Distribute Passengers //////////////////
 	static void distribute_pass(int N){
@@ -35,14 +44,14 @@ public class Caltrain{
 	
 	////////////////// Create All 8 Stations //////////////////
 	static void station_init(){
-		stations[0] = new Station("Roosevelt");
-		stations[1] = new Station("Monumento");
-		stations[2] = new Station("R. Papa");
-		stations[3] = new Station("Blumentrit");
-		stations[4] = new Station("Bambang");
-		stations[5] = new Station("Carriedo");
-		stations[6] = new Station("EDSA");
-		stations[7] = new Station("Baclaran");
+		stations[0] = new Station("Roosevelt", view);
+		stations[1] = new Station("Monumento", view);
+		stations[2] = new Station("R. Papa", view);
+		stations[3] = new Station("Blumentrit", view);
+		stations[4] = new Station("Bambang", view);
+		stations[5] = new Station("Carriedo", view);
+		stations[6] = new Station("EDSA", view);
+		stations[7] = new Station("Baclaran", view);
 	}
 
 	////////////////// Create All Trains //////////////////
@@ -53,23 +62,72 @@ public class Caltrain{
 			System.out.println("Train "+(i+1));
 			System.out.print("Number of Seats: ");
 			int x = reader.nextInt();
-			trains[i] = new Train("Train"+(i+1),x,stations);
+			trains[i] = new Train("Train "+(i+1),x,stations,true, view);
+			
 		}
+		trains[15].isLastTrain = true;
+		trains[15].last_station = stations[7];
+		trains[0].isTrainOne = true;
 	}
 	
-	public static void main(String[]args) {
+	static void dispatchTrain(int i) {
+		trains[i].start();
+		if (i != 0)
+			view.addTrain();
+	}
+	
+	public static void main(String[]args) throws InterruptedException {
 		Passenger passengers[];
+		Lock l = new ReentrantLock();
+		Condition dispatch = l.newCondition();
 		station_init();
 		Scanner reader =  new Scanner(System.in);
 		int x = reader.nextInt();
+		int total_passenger = x;
+		int undispatchedTrain = 15;
+		int counter=1;
 		passengers = new Passenger[x];
 		distribute_pass(x);
 		for(int i = 0; i<x ; i++) {
-			passengers[i] = new Passenger("Pass#"+(i+1), stations[i%8]);
+			passengers[i] = new Passenger("Pass#"+(i+1), stations[i%8], stations[(i+5)%8], view);
 			passengers[i].start();
 		}
+		train_init();
+		dispatchTrain(0);
+		System.out.println("Train " + 1 + " dispatched");
 		
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                JFrame frame = new JFrame();
+                frame.add(view);
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setSize(700,700);
+                frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
+            }
+        });
 		
+		//function as dispatcher
+		while(undispatchedTrain!=0) {
+			System.out.println("attempt locking");
+			stations[0].lock.lock();
+			while(stations[0].dispatchRdy) {
+				System.out.println("Train " + (counter+1) + " is waiting for dispatch");
+				stations[0].dispatch.await();
+			}
+			System.out.println("Train " + (counter+1) + " dispatched");
+			//----------- TRAIN DISPATCHES -----------
+			dispatchTrain(counter);
+			stations[0].dispatchRdy = true;
+			stations[0].lock.unlock();
+			counter++;
+			undispatchedTrain--;
+			
+			
+			
+		}		
 		
 	}
 	
