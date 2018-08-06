@@ -93,6 +93,10 @@ public class Caltrain{
 			passengers[i].start();
 		}
 		train_init();
+		
+		// TIMER FOR EXECUTION TIME
+		long startTime = System.currentTimeMillis();
+		
 		dispatchTrain(0);
 		System.out.println("Train " + 1 + " dispatched");
 		
@@ -125,10 +129,10 @@ public class Caltrain{
 			counter++;
 			undispatchedTrain--;
 			
-			
-			
 		}		
 		
+		long endTime = System.currentTimeMillis();
+		System.out.println("That took " + (endTime - startTime) + " milliseconds");
 	}
 	
 
