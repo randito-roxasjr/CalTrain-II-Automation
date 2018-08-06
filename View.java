@@ -48,7 +48,6 @@ public class View extends JPanel
 	s8X = 250, s8Y = (int) ((height-offsetB)/2);
 	Timer timer;
 	
-	
 	// TRAIN COORDINATES
 	
 	
@@ -78,7 +77,8 @@ public class View extends JPanel
     }
     
     public void exitTrain(int i) {
-    	trains.remove(i);
+    //	trains.remove(i);
+    	trains.get(i).show = false;
     }
     
 
@@ -110,12 +110,16 @@ public class View extends JPanel
   		
   		for (Train train: trains) 
         {
-            train.drawTrain(g);
+  			if (train.show)
+  				train.drawTrain(g);
         }
     }
 
     public class Train 
     {
+
+    	BufferedImage train;
+    	boolean show;
         int x = 250, y = 150, // Position
         	velX = INCREMENT, velY = INCREMENT; // Speed
 	        
@@ -123,12 +127,12 @@ public class View extends JPanel
         {
             this.x = x;
             this.y = y;
+            this.show = true;
         }
        
         public void drawTrain(Graphics g) 
         {
         	// Import and paint train size 74 x 105
-        	BufferedImage train;
 			try {
 				train = ImageIO.read(new File("C:\\Users\\roxas\\Documents\\DLSU\\3rd Year\\3rd Term\\INTROOS\\MC02\\INTRO-OS\\images\\train.png"));
 				g.drawImage(train, x, y, null);
@@ -137,44 +141,6 @@ public class View extends JPanel
 				e.printStackTrace();
 			}
         }
-        
-//        public void start() {
-//        	// If max horizontal right
-//    		if (x >= (int) width-offsetR+50 && y <= 150)
-//    		{
-//    			velX = 0;
-//    			velY = INCREMENT;
-//    			x = (int) width-offsetR+50;
-//    			y = 150;
-//    		}
-//    		// If max vertical down
-//    		else if (y >= (int) height-offsetB-105 && x >= (int) width-offsetR+50)
-//    		{
-//    			velX = -INCREMENT;
-//    			velY = 0;
-//    			y = (int) height-offsetB-105;
-//    			x = (int) width-offsetR+50;
-//    		}
-//    		// If max horizontal left
-//    		else if (x < 250 && y >= (int) height-offsetB-105)
-//    		{
-//    			velX = 0;
-//    			velY = -INCREMENT;
-//    			x = 250;
-//    			y = (int) height-offsetB-105;
-//    		}
-//    		// If max vertical left
-//    		else if (y <= 150 && x <= 250)
-//    		{
-//    			velX = INCREMENT;
-//    			velY = 0;
-//    			x = 250;
-//    			y = 150;
-//    		}
-//    		
-//    		x = x + velX;
-//    		y = y + velY;
-//        }
     }
 
 }

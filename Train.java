@@ -17,6 +17,7 @@ class Train extends Thread{
 	boolean isTrainOne=false;
 	View view;
 	int i=0; //train has not been dispatched.
+	private boolean end = false;
 	
 	////////////////// Constructor station_init //////////////////
 	public Train(String name, int N, Station[] stations, boolean isFirst, View frame){
@@ -45,6 +46,19 @@ class Train extends Thread{
 	
 	public void nextStation() {
 		Integer num = Integer.parseInt(name.substring(6))-1;
+		
+		if (end) {
+			for (int z=view.trains.get(num).y; z > 150; z--) {
+				view.trains.get(num).y = z;
+				try {
+					Thread.sleep(2);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			this.end = false;
+		}
 		
 		switch (this.i) {
 		case 1:
@@ -123,18 +137,7 @@ class Train extends Thread{
 					e.printStackTrace();
 				}
 			}
-			break;
-		case 8:
-			for (int z=view.trains.get(num).y; z > 150; z--) {
-				view.trains.get(num).y = z;
-				try {
-					Thread.sleep(2);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			break;
+			this.end = true;
 		}
 	}
 
