@@ -55,7 +55,9 @@ class Station{
 	}
 	
 	public void checkWaitingWaiting(String name, boolean isFirstTrain) throws InterruptedException {
+		//----------- TRAIN WAITS -----------
 		waiting_waiting_train.acquire();
+		//----------- TRAIN MOVES FROM WAIT -----------
 	}
 	
 	public void getNextTrain(boolean isFirstTrain) throws InterruptedException {
@@ -74,13 +76,17 @@ class Station{
 	
 	public void checkWaiting(String name) throws InterruptedException {
 		System.out.println("Now,  " + name + " is waiting for waiting "+ this.Name);
+		//----------- TRAIN WAITS -----------
 		waiting_train.acquire();
+		//----------- TRAIN MOVES FROM WAIT -----------
 		waiting_waiting_train.release();
 	}
 	
 	public void waitEmpty(String name, Train tren) throws InterruptedException {
 		System.out.println("Currently  " + name + " is waiting for "+ this.Name);
+		//----------- TRAIN WAITS -----------
 		train.acquire();
+		//----------- TRAIN MOVES FROM WAIT -----------
 		waiting_train.release();
 		this.tren = tren;
 		System.out.println("nakapasok na " + name + " sa station " + this.Name);
@@ -91,21 +97,24 @@ class Station{
 		free_seats = count;
 		//prepare dropping off
 		int num = Integer.parseInt(tren.name.substring(6))-1;
-		System.out.println("number of passengers to drop " + this.num_drop[num]);
+		System.out.println(this.tren.name + " number of passengers to drop " + this.num_drop[num]);
 		
 		if(this.num_drop[num]!=0) {
+			//update free seats ni train kung ilan bumaba
 			tren.free_seats += this.num_drop[num];
 			drop.release(this.num_drop[num]);
-			//wait until wala na maacquire
+			//----------- TRAIN WAITS for passengers to leave-----------
 			noDrop.acquire();
 		}
 		System.out.println("Update free seats " + this.Name + " with free seats:" + free_seats + " by " + tren.name);
 		
 		if(free_seats!=0 && waiting!=0) {
 			seats.release(free_seats);
+			//----------- TRAIN WAITS for passengers to prepare for boarding-----------
 			noSpace.acquire();
 		}
 		
+		//----------- TRAIN tries to clear the seat permits if there are spaces left-----------
 		if(seats.tryAcquire()) {
 			System.out.println("may seats pa blanko");
 			seats.drainPermits();
@@ -117,6 +126,7 @@ class Station{
 		tren.free_seats -= boarding;
 		if(boarding!=0) {
 			board.release(boarding);
+			//----------- TRAIN WAITS for passengers to actually board-----------
 			noBoard.acquire();
 		}
 
@@ -132,9 +142,11 @@ class Station{
 		// else, continue to wait
 		System.out.println(this.Name+" is waiting for a train");
 		while(true) {
+			//----------- PASSENGER WAITS FOR TRAIN and FREE SEATS -----------
 			seats.acquire();
 			System.out.println("permits available: " + mutex.availablePermits());
 			mutex.acquire();
+			//----------- PASSENGER PREPARES TO BOARD -----------
 			if(free_seats!=0) {
 				waiting--;
 				free_seats--;
@@ -163,12 +175,15 @@ class Station{
 	////////////////// passenger gets off train and free seat increments //////////////////
 	public void station_get_off(String pass_train) throws InterruptedException {
 		while(true) {
+			//passenger waits for train to ask if they are going to get off or not
 			drop.acquire();
 			if(this.tren.name.equalsIgnoreCase(pass_train)) {
 				mutex.acquire();
 				break;
 			}
+			drop.release();
 		}
+		//PASSENGER LEAVES and updates station.free_seats
 		free_seats++;
 		Integer num = Integer.parseInt(tren.name.substring(6))-1;
 		this.num_drop[num]--;
@@ -181,10 +196,13 @@ class Station{
 	////////////////// Passengers are seated //////////////////
 	public void station_on_board() throws InterruptedException{
 		// Let train know passengers are on board
+		//----------- PASSENGER WAITS for train to signal passengers to actually board -----------
 		board.acquire();
 		mutex.acquire();
 		System.out.println("nakasakay na ko train " + tren.name + " with " + mutex.availablePermits() + " " + boarding);
 		boarding--;
+		// update the number of boarding passengers left
+		// when the boarding passenger is 0, the train prepares to leave.
 		if(boarding==0)
 			noBoard.release();
 		mutex.release();

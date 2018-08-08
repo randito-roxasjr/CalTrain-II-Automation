@@ -23,7 +23,7 @@ class Passenger extends Thread{
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("Passenger" + name + "dropped off.");
+		System.out.println("Passenger" + name + "dropped off at " + drop_station.Name);
 		
 	}
 }
