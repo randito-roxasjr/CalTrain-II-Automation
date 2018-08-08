@@ -1,10 +1,27 @@
-import java.util.Scanner;
+package semaphore;
 
+import java.util.Scanner;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Caltrain{
 		
 	static Station[] stations = new Station[8];
 	static Train[] trains = new Train[16];
+	
+	static int getTrainCount(int passengers) {
+		int count = 0;
+		int i=0;
+		while (passengers > count){
+		    count += trains[i].max_seats;
+		    i++;
+		    if(i==16)
+		    	break;
+		}
+		return i;
+	}
+	
 	
 	//////////////////Distribute Passengers //////////////////
 	static void distribute_pass(int N){
@@ -32,8 +49,6 @@ public class Caltrain{
 		}
 	}
 	
-	
-	
 	////////////////// Create All 8 Stations //////////////////
 	static void station_init(){
 		stations[0] = new Station("Roosevelt");
@@ -57,6 +72,8 @@ public class Caltrain{
 			trains[i] = new Train("Train "+(i+1),x,stations,true);
 			
 		}
+		
+		trains[0].isTrainOne = true;
 	}
 	
 	static void dispatchTrain(int i) {
@@ -64,50 +81,41 @@ public class Caltrain{
 	}
 	
 	public static void main(String[]args) {
-		Scanner reader =  new Scanner(System.in);
 		Passenger passengers[];
 		station_init();
-
+		Scanner reader =  new Scanner(System.in);
 		System.out.println("Total Passengers: ");
-		
 		int x = reader.nextInt();
-		int total_passenger = x;
-		int undispatchedTrain = 15;
-		int counter=1;
+		int counter=0;
 		passengers = new Passenger[x];
 		distribute_pass(x);
-
 		for(int i = 0; i<x ; i++) {
-			passengers[i] = new Passenger("Pass# "+(i+1), stations[i%8]);
-			
-		}
-
-		train_init();
-
-		for(int i=0; i<x ; i++) {	
+			passengers[i] = new Passenger("Pass#"+(i+1), stations[i%8], stations[(i+5)%8]);
 			passengers[i].start();
 		}
-
-
-		dispatchTrain(0);
-
+		train_init();
+		int train_count = getTrainCount(x);
+		trains[train_count-1].isLastTrain = true;
+		trains[train_count-1].last_station = stations[7];
+		int undispatchedTrain = train_count;
+		
+		//function as dispatcher
 		while(undispatchedTrain!=0) {
-			while(stations[0].hasTrain)
-				try{
-					stations[0].waiting_train.acquire();
-				} 
-				catch (InterruptedException e){
-					e.printStackTrace();
-				}
-			System.out.println("Train dispatched " + counter);
+			//System.out.println("attempt mutex");
+			//stations[0].mutex.acquire();
+			System.out.println("attempt dispatch.");
+			try{
+				stations[0].dispatch.acquire();
+			} 
+			catch (InterruptedException e){
+				e.printStackTrace();
+			}
+			System.out.println("Train " + (counter+1) + " dispatched ");
+			//----------- TRAIN DISPATCHES -----------
 			dispatchTrain(counter);
 			counter++;
 			undispatchedTrain--;
-		}
-		while(total_passenger>0) {
-		}
-		
-		
+		}		
 	}
 	
 
