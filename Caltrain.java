@@ -101,8 +101,7 @@ public class Caltrain{
 		
 		//function as dispatcher
 		while(undispatchedTrain!=0) {
-			//System.out.println("attempt mutex");
-			//stations[0].mutex.acquire();
+
 			System.out.println("attempt dispatch.");
 			try{
 				stations[0].dispatch.acquire();
