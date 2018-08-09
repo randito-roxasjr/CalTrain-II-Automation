@@ -108,14 +108,16 @@ class Station{
 	
 	//train is next to the next in station, waiting for the waiting train....
 	// [station1]  _thisTrain_  ______  [station2]
-	public void checkWaiting(String name, Station curr_station, boolean isFirstTrain) {
+	public void checkWaiting(String name, Station curr_station, boolean isFirstTrain, Train tren) {
 		lock.lock();
 		hasWaitingWaitingTrain = true;
 		while(hasWaitingTrain) {
 			try {
 				System.out.println("Now,  " + name + " is waiting for waiting "+ this.Name);
 				//----------- TRAIN WAITS -----------
+				tren.isWaiting = true;
 				waiting_train.await();
+				tren.isWaiting = false;
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -136,7 +138,9 @@ class Station{
 			try {
 				System.out.println("Currently  " + name + " is waiting for "+ this.Name);
 				//----------- TRAIN WAITS -----------
+				tren.isWaiting = true;
 				train.await();
+				tren.isWaiting = false;
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

@@ -15,6 +15,8 @@ class Train extends Thread{
 	boolean isLastTrain=false;
 	boolean hasLastTrainCome = false;
 	boolean isTrainOne=false;
+	boolean isWaiting = false;
+	boolean isWaitingWaiting = false;
 	View view;
 	int i=0; //train has not been dispatched.
 	private boolean end = false;
@@ -187,7 +189,7 @@ class Train extends Thread{
 			}
 			curr_station = stations[i];
 			
-			next_station.checkWaiting(name, curr_station, isFirstTrain);
+			next_station.checkWaiting(name, curr_station, isFirstTrain, this);
 			
 			isFirstTrain = false;
 			
