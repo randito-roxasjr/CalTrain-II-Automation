@@ -74,10 +74,12 @@ class Station{
 		this.num_drop[num] = 0;
 	}
 	
-	public void checkWaiting(String name) throws InterruptedException {
+	public void checkWaiting(String name, Train tren) throws InterruptedException {
 		System.out.println("Now,  " + name + " is waiting for waiting "+ this.Name);
 		//----------- TRAIN WAITS -----------
+		tren.isWaiting = true;
 		waiting_train.acquire();
+		tren.isWaiting = false;
 		//----------- TRAIN MOVES FROM WAIT -----------
 		waiting_waiting_train.release();
 	}
@@ -85,7 +87,9 @@ class Station{
 	public void waitEmpty(String name, Train tren) throws InterruptedException {
 		System.out.println("Currently  " + name + " is waiting for "+ this.Name);
 		//----------- TRAIN WAITS -----------
+		tren.isWaiting = true;
 		train.acquire();
+		tren.isWaiting = false;
 		//----------- TRAIN MOVES FROM WAIT -----------
 		waiting_train.release();
 		this.tren = tren;

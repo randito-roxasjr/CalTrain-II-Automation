@@ -15,6 +15,8 @@ class Train extends Thread{
 	boolean isLastTrain=false;
 	boolean hasLastTrainCome = false;
 	boolean isTrainOne=false;
+	boolean isWaiting = false;
+	boolean isWaitingWaiting = false;
 
 	////////////////// Constructor station_init //////////////////
 	public Train(String name, int N, Station[] stations, boolean isFirst){
@@ -83,7 +85,7 @@ class Train extends Thread{
 				}
 				curr_station = stations[i];
 				
-				next_station.checkWaiting(name);
+				next_station.checkWaiting(name, this);
 				
 				isFirstTrain = false;
 			}catch(Exception e) {
