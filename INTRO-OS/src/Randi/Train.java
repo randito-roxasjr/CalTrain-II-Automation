@@ -15,6 +15,8 @@ class Train extends Thread{
 	boolean isLastTrain=false;
 	boolean hasLastTrainCome = false;
 	boolean isTrainOne=false;
+	int isWaiting = 0;
+	int isWaitingWaiting = 0;
 	View view;
 	int i=0; //train has not been dispatched.
 	private boolean end = false;
@@ -48,7 +50,8 @@ class Train extends Thread{
 		Integer num = Integer.parseInt(name.substring(6))-1;
 		
 		if (end) {
-			for (int z=view.trains.get(num).y; z > 150; z--) {
+			isWaiting = 1;
+			for (int z=view.trains.get(num).y; z > 150 + (300*isWaitingWaiting) + (150*isWaiting); z--) {
 				view.trains.get(num).y = z;
 				try {
 					Thread.sleep(2);
