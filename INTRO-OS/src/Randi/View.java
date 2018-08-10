@@ -27,7 +27,8 @@ public class View extends JPanel
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	double height = screenSize.getHeight();
 	double width = screenSize.getWidth();
-	
+	int train_num = 1;
+	int global = 0;
 
 	//Train List
     List<Train> trains;
@@ -48,9 +49,6 @@ public class View extends JPanel
 	s8X = 250, s8Y = (int) ((height-offsetB)/2);
 	Timer timer;
 	
-	// TRAIN COORDINATES
-	
-	
     public View() 
     {
     	trains = new ArrayList<>();
@@ -64,12 +62,12 @@ public class View extends JPanel
             	for (Train train: trains) 
                 {
             		repaint();
+            		global=0;
             	}
 
             }
         });
         timer.start();
-        
     }
     
     public void addTrain() {
@@ -89,14 +87,26 @@ public class View extends JPanel
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     	double height = screenSize.getHeight();
     	double width = screenSize.getWidth();
+    	// Draw H Train Track 1935 x 105
+    	ImageIcon htracks = new ImageIcon("C:\\Users\\Dean\\eclipse-workspace\\INTRO-OS\\images\\htraintracks.png");
+    	// Top
+    	htracks.paintIcon(this, g, 250, 150);
+    	// Bottom
+    	htracks.paintIcon(this, g, 250, 1245);
+    	// Draw V Train Track 80 x 1200
+    	ImageIcon vtracks = new ImageIcon("C:\\Users\\Dean\\eclipse-workspace\\INTRO-OS\\images\\vtraintracks.png");
+    	// Left
+    	vtracks.paintIcon(this, g, 250, 150);
+    	// Right
+    	vtracks.paintIcon(this, g, 2105, 150);
     	
-        //Draw Outer Line
-      	g.drawRect(250, 150, (int) width-offsetR-130, (int) height-offsetB-155);
-  		//Draw Inner Line
-  		g.drawRect(325, 255, (int) width-offsetR-275, (int) height-offsetB-360);
+//    		//Draw Outer Line
+//      	g.drawRect(250, 150, (int) width-offsetR-130, (int) height-offsetB-155);
+//  		//Draw Inner Line
+//  		g.drawRect(325, 255, (int) width-offsetR-275, (int) height-offsetB-360);
   		
   		// Import Station Image Size: 200 x 65 px
-  		ImageIcon i = new ImageIcon("C:\\Users\\roxas\\Documents\\DLSU\\3rd Year\\3rd Term\\INTROOS\\MC02\\INTRO-OS\\images\\station.png");
+  		ImageIcon i = new ImageIcon("C:\\Users\\Dean\\eclipse-workspace\\INTRO-OS\\images\\station.png");
   		
   		// Paint Station Clockwise
   		i.paintIcon(this, g, s1X-100, s1Y-65);
@@ -110,6 +120,7 @@ public class View extends JPanel
   		
   		for (Train train: trains) 
         {
+  			global++;
   			if (train.show)
   				train.drawTrain(g);
         }
@@ -134,7 +145,9 @@ public class View extends JPanel
         {
         	// Import and paint train size 74 x 105
 			try {
-				train = ImageIO.read(new File("C:\\Users\\roxas\\Documents\\DLSU\\3rd Year\\3rd Term\\INTROOS\\MC02\\INTRO-OS\\images\\train.png"));
+				String string = "C:\\Users\\Dean\\eclipse-workspace\\INTRO-OS\\images\\train"+global+".png";
+				train = ImageIO.read(new File(string));
+				train_num++;
 				g.drawImage(train, x, y, null);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -142,5 +155,4 @@ public class View extends JPanel
 			}
         }
     }
-
 }

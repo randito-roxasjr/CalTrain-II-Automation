@@ -15,8 +15,8 @@ class Train extends Thread{
 	boolean isLastTrain=false;
 	boolean hasLastTrainCome = false;
 	boolean isTrainOne=false;
-	boolean isWaiting = false;
-	boolean isWaitingWaiting = false;
+	int isWaiting = 0;
+	int isWaitingWaiting = 0;
 	View view;
 	int i=0; //train has not been dispatched.
 	private boolean end = false;
@@ -64,7 +64,7 @@ class Train extends Thread{
 		
 		switch (this.i) {
 		case 1:
-			for (int z=view.trains.get(num).x; z <= view.s2X; z++) {
+			for (int z=view.trains.get(num).x; z <= view.s2X-150*isWaiting-300*isWaitingWaiting; z++) {
 				view.trains.get(num).x = z;
 				try {
 					Thread.sleep(2);
@@ -75,7 +75,7 @@ class Train extends Thread{
 			}
 			break;
 		case 2:
-			for (int z=view.trains.get(num).x; z <= (int) view.width-view.offsetR+50; z++) {
+			for (int z=view.trains.get(num).x; z <= (int) view.width-view.offsetR+50-150*isWaiting-300*isWaitingWaiting; z++) {
 				view.trains.get(num).x = z;
 				try {
 					Thread.sleep(2);
@@ -86,7 +86,7 @@ class Train extends Thread{
 			}
 			break;
 		case 3:
-			for (int z=view.trains.get(num).y; z < view.s4Y; z++) {
+			for (int z=view.trains.get(num).y; z < view.s4Y-150*isWaiting-300*isWaitingWaiting; z++) {
 				view.trains.get(num).y = z;
 				try {
 					Thread.sleep(2);
@@ -97,7 +97,7 @@ class Train extends Thread{
 			}
 			break;
 		case 4:
-			for (int z=view.trains.get(num).y; z < (int) view.height-view.offsetB-105; z++) {
+			for (int z=view.trains.get(num).y; z < (int) view.height-view.offsetB-105-150*isWaiting-300*isWaitingWaiting; z++) {
 				view.trains.get(num).y = z;
 				try {
 					Thread.sleep(2);
@@ -108,7 +108,7 @@ class Train extends Thread{
 			}
 			break;
 		case 5:
-			for (int z=view.trains.get(num).x; z >= view.s6X; z--) {
+			for (int z=view.trains.get(num).x; z >= view.s6X+150*isWaiting+300*isWaitingWaiting; z--) {
 				view.trains.get(num).x = z;
 				try {
 					Thread.sleep(2);
@@ -119,7 +119,7 @@ class Train extends Thread{
 			}
 			break;
 		case 6:
-			for (int z=view.trains.get(num).x; z >= 250; z--) {
+			for (int z=view.trains.get(num).x; z >= 250+150*isWaiting+300*isWaitingWaiting; z--) {
 				view.trains.get(num).x = z;
 				try {
 					Thread.sleep(2);
@@ -130,7 +130,7 @@ class Train extends Thread{
 			}
 			break;
 		case 7:
-			for (int z=view.trains.get(num).y; z > view.s8Y; z--) {
+			for (int z=view.trains.get(num).y; z > view.s8Y-150*isWaiting-300*isWaitingWaiting; z--) {
 				view.trains.get(num).y = z;
 				try {
 					Thread.sleep(2);
@@ -144,15 +144,22 @@ class Train extends Thread{
 	}
 
 	public void run() {
-		
+		sleep(1000);
 		do {
-			sleep(1000);
+			
 			curr_station = stations[i];
 			if(curr_station.Name.equalsIgnoreCase("Roosevelt"))
 				counter = 0;
-			curr_station.waitEmpty(name, this);
 			
+			curr_station.waitEmpty(name, this);
+			//sleep(50);
+			/*
+			isWaiting = 0;
+			isWaitingWaiting=0;
+			nextStation();
+			*/
 			System.out.println("begin loading " + name);
+			
 			curr_station.station_load_train(free_seats, this);
 			if(free_seats == max_seats)
 				counter++;
@@ -164,7 +171,7 @@ class Train extends Thread{
 			System.out.println(name + " is check waiting at " + next_station.Name);
 			System.out.println("currently at " + curr_station.Name);
 			
-			this.nextStation();
+			
 			
 			if(curr_station.Name.equalsIgnoreCase("Baclaran") && !hasLastTrainCome && isTrainOne && next_station.lastTrainNotDispatched){
 				next_station.waitForLastTrain();
@@ -174,6 +181,11 @@ class Train extends Thread{
 			}
 				
 			next_station.checkWaitingWaiting(name, curr_station, isFirstTrain);
+			/*
+			isWaiting=0;
+			isWaitingWaiting=1;
+			this.nextStation();
+			*/
 			curr_station.getNextTrain(isFirstTrain);
 			if(isLastTrain) {
 				System.out.println("Continue train1 at " + curr_station.Name);
@@ -188,9 +200,12 @@ class Train extends Thread{
 				isLastTrain = false;
 			}
 			curr_station = stations[i];
-			
 			next_station.checkWaiting(name, curr_station, isFirstTrain, this);
-			
+			/*
+			isWaiting=1;
+			isWaitingWaiting=0;
+			this.nextStation();
+			*/
 			isFirstTrain = false;
 			
 			
