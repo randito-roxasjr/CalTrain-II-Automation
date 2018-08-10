@@ -30,7 +30,11 @@ public class View extends JPanel
 	double width = screenSize.getWidth();
 	int train_num = 1;
 	int global = 0;
-
+	
+	////////// INTEGER DISPLAYS ////////////
+	int pass_station[] = new int[8];
+	int drop_train[] = new int[8];
+	
 	//Train List
     List<Train> trains;
     
@@ -56,6 +60,7 @@ public class View extends JPanel
     public View() 
     {
     	trains = new ArrayList<>();
+    	pass_init();
     	addTrain();
     	
     	// Time to update view in milliseconds
@@ -73,6 +78,13 @@ public class View extends JPanel
         });
         timer.start();
         
+    }
+    
+    public void pass_init() {
+    	for (int i=0; i<pass_station.length; i++) {
+    		pass_station[i] = 0;
+    		drop_train[i] = 0;
+    	}
     }
     
     public void addTrain() {
@@ -124,6 +136,17 @@ public class View extends JPanel
   		i.paintIcon(this, g, s6X, s6Y);
   		i.paintIcon(this, g, s7X-100, s7Y);
   		i.paintIcon(this, g, s8X-200, s8Y);
+  		
+  		// TEXTS IN STATIONS
+  		g.drawString("Remaining: "+Integer.toString(pass_station[0])+" Arrived: "+Integer.toString(drop_train[0]), s1X-100, s1Y-70);
+  		g.drawString("Remaining: "+Integer.toString(pass_station[1])+" Arrived: "+Integer.toString(drop_train[1]), s2X, s2Y-70);
+  		g.drawString("Remaining: "+Integer.toString(pass_station[2])+" Arrived: "+Integer.toString(drop_train[2]), s3X, s3Y-70);
+  		g.drawString("Remaining: "+Integer.toString(pass_station[3])+" Arrived: "+Integer.toString(drop_train[3]), s4X+260, s4Y+65/2);
+  		g.drawString("Remaining: "+Integer.toString(pass_station[4])+" Arrived: "+Integer.toString(drop_train[4]), s5X+180, s5Y+15);
+  		g.drawString("Remaining: "+Integer.toString(pass_station[5])+" Arrived: "+Integer.toString(drop_train[5]), s6X+180, s6Y+13);
+  		g.drawString("Remaining: "+Integer.toString(pass_station[6])+" Arrived: "+Integer.toString(drop_train[6]), s7X+60, s7Y+15);
+  		g.drawString("Remaining: "+Integer.toString(pass_station[7])+" Arrived: "+Integer.toString(drop_train[7]), s8X-200, s8Y-5);
+
   		
   		for (Train train: trains) 
         {

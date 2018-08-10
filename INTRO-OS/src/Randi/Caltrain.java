@@ -45,8 +45,18 @@ public class Caltrain{
 		stations[6].waiting = passengers;
 		stations[7].waiting = passengers;
 		
+		view.pass_station[0] = passengers;
+		view.pass_station[1] = passengers;
+		view.pass_station[2] = passengers;
+		view.pass_station[3] = passengers;
+		view.pass_station[4] = passengers;
+		view.pass_station[5] = passengers;
+		view.pass_station[6] = passengers;
+		view.pass_station[7] = passengers;
+		
 		while(remaining>0){
 			stations[i].waiting++;
+			view.pass_station[i]++;
 			remaining--;
 			i++;	
 		}
@@ -104,7 +114,7 @@ public class Caltrain{
 		passengers = new Passenger[x];
 		distribute_pass(x);
 		for(int i = 0; i<x ; i++) {
-			passengers[i] = new Passenger("Pass#"+(i+1), stations[i%8], stations[(i+5)%8], view);
+			passengers[i] = new Passenger("Pass#"+(i+1), stations[i%8], stations[(i+5)%8], view, i%8);
 			passengers[i].start();
 		}
 		train_init();
