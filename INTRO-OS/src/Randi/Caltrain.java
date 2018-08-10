@@ -14,6 +14,22 @@ public class Caltrain{
 	static Train[] trains = new Train[16];
 	static View view = new View();
 	
+	//////////////////Count Train Demand //////////////////
+	static int getTrainCount(int passengers) {
+		int count = 0;
+		int i=0;
+		
+		while (passengers > count){
+		    count += trains[i].max_seats;
+		    i++;
+		
+		    if(i==16)
+		    	break;
+		}
+		
+		return i;
+	}
+	
 	//////////////////Distribute Passengers //////////////////
 	static void distribute_pass(int N){
 		int passengers =  N/8;
@@ -84,7 +100,6 @@ public class Caltrain{
 		Scanner reader =  new Scanner(System.in);
 		int x = reader.nextInt();
 		int total_passenger = x;
-		int undispatchedTrain = 15;
 		int counter=1;
 		passengers = new Passenger[x];
 		distribute_pass(x);
@@ -93,6 +108,12 @@ public class Caltrain{
 			passengers[i].start();
 		}
 		train_init();
+		
+		int train_count = getTrainCount(x);
+		trains[train_count-1].isLastTrain = true;
+		trains[train_count-1].isFirstTrain = false;
+		trains[train_count-1].last_station = stations[7];
+		int undispatchedTrain = train_count;
 		
 		// TIMER FOR EXECUTION TIME
 		long startTime = System.currentTimeMillis();
