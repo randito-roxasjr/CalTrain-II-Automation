@@ -111,6 +111,10 @@ class Station{
 	public void checkWaiting(String name, Station curr_station, boolean isFirstTrain) {
 		lock.lock();
 		hasWaitingWaitingTrain = true;
+
+		tren.isWaiting=0;
+		tren.isWaitingWaiting=1;
+		
 		while(hasWaitingTrain) {
 			try {
 				System.out.println("Now,  " + name + " is waiting for waiting "+ this.Name);
@@ -124,6 +128,8 @@ class Station{
 		hasWaitingTrain = true;
 		hasWaitingWaitingTrain = false;
 		waiting_waiting_train.signal();
+		tren.isWaiting=1;
+		tren.isWaitingWaiting=0;
 		lock.unlock();
 	}
 	
@@ -144,6 +150,8 @@ class Station{
 		hasTrain = true;
 		this.tren = tren;
 		hasWaitingTrain = false;
+		tren.isWaiting = 0;
+		tren.isWaitingWaiting=0;
 		waiting_train.signal();
 		lock.unlock();
 		System.out.println("nakapasok na " + name + " sa station " + this.Name);
