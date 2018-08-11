@@ -114,7 +114,7 @@ public class Caltrain{
 		passengers = new Passenger[x];
 		distribute_pass(x);
 		for(int i = 0; i<x ; i++) {
-			passengers[i] = new Passenger("Pass#"+(i+1), stations[i%8], stations[(i+5)%8], view, i%8);
+			passengers[i] = new Passenger("Pass#"+(i+1), stations[i%8], stations[(i+5)%8], view, i%8, (i+5)%8);
 			passengers[i].start();
 		}
 		train_init();
