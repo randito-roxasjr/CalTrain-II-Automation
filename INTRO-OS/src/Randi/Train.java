@@ -48,9 +48,9 @@ class Train extends Thread{
 	
 	public void nextStation() {
 		Integer num = Integer.parseInt(name.substring(6))-1;
-		
+
 		if (end) {
-			for (int z=view.trains.get(num).y; z > 150; z--) {
+			for (int z=view.trains.get(num).y; z > 150 + ((view.s8Y-view.s1Y)*isWaiting)/3 + (2*(view.s8Y-view.s1Y)*isWaitingWaiting)/3; z--) {
 				view.trains.get(num).y = z;
 				try {
 					Thread.sleep(2);
@@ -59,12 +59,18 @@ class Train extends Thread{
 					e.printStackTrace();
 				}
 			}
+	
 			this.end = false;
+			
+			if (this.isWaiting == 1 || this.isWaitingWaiting == 1) 
+				this.end = true;
+			
+			return;
 		}
-		
-		switch (this.i) {
+
+			switch (this.i) {
 		case 1:
-			for (int z=view.trains.get(num).x; z <= view.s2X-150*isWaiting-300*isWaitingWaiting; z++) {
+			for (int z=view.trains.get(num).x; z <= view.s2X - ((view.s2X-view.s1X)*isWaiting)/3 - (2*(view.s2X-view.s1X)*isWaitingWaiting)/3; z++) {
 				view.trains.get(num).x = z;
 				try {
 					Thread.sleep(2);
@@ -73,9 +79,11 @@ class Train extends Thread{
 					e.printStackTrace();
 				}
 			}
+			
 			break;
 		case 2:
-			for (int z=view.trains.get(num).x; z <= (int) view.width-view.offsetR+50-150*isWaiting-300*isWaitingWaiting; z++) {
+			
+			for (int z=view.trains.get(num).x; z <= (int) view.width-view.offsetR+50 - ((view.s3X-view.s2X)*isWaiting)/3 - (2*(view.s3X-view.s2X)*isWaitingWaiting)/3; z++) {
 				view.trains.get(num).x = z;
 				try {
 					Thread.sleep(2);
@@ -86,7 +94,8 @@ class Train extends Thread{
 			}
 			break;
 		case 3:
-			for (int z=view.trains.get(num).y; z < view.s4Y-150*isWaiting-300*isWaitingWaiting; z++) {
+
+			for (int z=view.trains.get(num).y; z < view.s4Y - ((view.s4Y-view.s3Y)*isWaiting)/3 - (2*(view.s4Y-view.s3Y)*isWaitingWaiting)/3; z++) {
 				view.trains.get(num).y = z;
 				try {
 					Thread.sleep(2);
@@ -97,7 +106,7 @@ class Train extends Thread{
 			}
 			break;
 		case 4:
-			for (int z=view.trains.get(num).y; z < (int) view.height-view.offsetB-105-150*isWaiting-300*isWaitingWaiting; z++) {
+			for (int z=view.trains.get(num).y; z < (int) view.height-view.offsetB-105 - ((view.s5Y-view.s4Y)*isWaiting)/3 - (2*(view.s5Y-view.s4Y)*isWaitingWaiting)/3; z++) {
 				view.trains.get(num).y = z;
 				try {
 					Thread.sleep(2);
@@ -108,7 +117,7 @@ class Train extends Thread{
 			}
 			break;
 		case 5:
-			for (int z=view.trains.get(num).x; z >= view.s6X+150*isWaiting+300*isWaitingWaiting; z--) {
+			for (int z=view.trains.get(num).x; z >= view.s6X + ((view.s5X-view.s6X)*isWaiting)/3 + (2*(view.s5X-view.s6X)*isWaitingWaiting)/3; z--) {
 				view.trains.get(num).x = z;
 				try {
 					Thread.sleep(2);
@@ -119,7 +128,8 @@ class Train extends Thread{
 			}
 			break;
 		case 6:
-			for (int z=view.trains.get(num).x; z >= 250+150*isWaiting+300*isWaitingWaiting; z--) {
+
+			for (int z=view.trains.get(num).x; z >= 250 + ((view.s6X-view.s7X)*isWaiting)/3 + (2*(view.s6X-view.s7X)*isWaitingWaiting)/3; z--) {
 				view.trains.get(num).x = z;
 				try {
 					Thread.sleep(2);
@@ -130,7 +140,7 @@ class Train extends Thread{
 			}
 			break;
 		case 7:
-			for (int z=view.trains.get(num).y; z > view.s8Y-150*isWaiting-300*isWaitingWaiting; z--) {
+			for (int z=view.trains.get(num).y; z > view.s8Y + ((view.s7Y-view.s8Y)*isWaiting)/3 + (2*(view.s7Y-view.s8Y)*isWaitingWaiting)/3; z--) {
 				view.trains.get(num).y = z;
 				try {
 					Thread.sleep(2);
@@ -141,25 +151,23 @@ class Train extends Thread{
 			}
 			this.end = true;
 		}
+		if (this.isWaiting == 1 || this.isWaitingWaiting == 1) { 
+			this.i--;
+			this.end = false;
+		}
+		
 	}
 
 	public void run() {
-		sleep(1000);
+		
 		do {
-			
+			sleep(1000);
 			curr_station = stations[i];
 			if(curr_station.Name.equalsIgnoreCase("Roosevelt"))
 				counter = 0;
-			
 			curr_station.waitEmpty(name, this);
-			//sleep(50);
-			/*
-			isWaiting = 0;
-			isWaitingWaiting=0;
-			nextStation();
-			*/
-			System.out.println("begin loading " + name);
 			
+			System.out.println("begin loading " + name);
 			curr_station.station_load_train(free_seats, this);
 			if(free_seats == max_seats)
 				counter++;
@@ -171,7 +179,7 @@ class Train extends Thread{
 			System.out.println(name + " is check waiting at " + next_station.Name);
 			System.out.println("currently at " + curr_station.Name);
 			
-			
+			this.nextStation();
 			
 			if(curr_station.Name.equalsIgnoreCase("Baclaran") && !hasLastTrainCome && isTrainOne && next_station.lastTrainNotDispatched){
 				next_station.waitForLastTrain();
@@ -181,11 +189,6 @@ class Train extends Thread{
 			}
 				
 			next_station.checkWaitingWaiting(name, curr_station, isFirstTrain);
-			/*
-			isWaiting=0;
-			isWaitingWaiting=1;
-			this.nextStation();
-			*/
 			curr_station.getNextTrain(isFirstTrain);
 			if(isLastTrain) {
 				System.out.println("Continue train1 at " + curr_station.Name);
@@ -200,12 +203,9 @@ class Train extends Thread{
 				isLastTrain = false;
 			}
 			curr_station = stations[i];
+			
 			next_station.checkWaiting(name, curr_station, isFirstTrain, this);
-			/*
-			isWaiting=1;
-			isWaitingWaiting=0;
-			this.nextStation();
-			*/
+			
 			isFirstTrain = false;
 			
 			

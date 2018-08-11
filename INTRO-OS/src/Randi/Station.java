@@ -108,20 +108,18 @@ class Station{
 	
 	//train is next to the next in station, waiting for the waiting train....
 	// [station1]  _thisTrain_  ______  [station2]
-	public void checkWaiting(String name, Station curr_station, boolean isFirstTrain, Train tren) {
+	public void checkWaiting(String name, Station curr_station, boolean isFirstTrain, Train train) {
 		lock.lock();
 		hasWaitingWaitingTrain = true;
-		tren.isWaiting=0;
-		tren.isWaitingWaiting=1;
-		tren.nextStation();
+
+		train.isWaiting=0;
+		train.isWaitingWaiting=1;
+		
 		while(hasWaitingTrain) {
 			try {
 				System.out.println("Now,  " + name + " is waiting for waiting "+ this.Name);
 				//----------- TRAIN WAITS -----------
-				
 				waiting_train.await();
-				//tren.isWaitingWaiting = 1;
-				
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -130,9 +128,8 @@ class Station{
 		hasWaitingTrain = true;
 		hasWaitingWaitingTrain = false;
 		waiting_waiting_train.signal();
-		tren.isWaiting=1;
-		tren.isWaitingWaiting=0;
-		tren.nextStation();
+		train.isWaiting=1;
+		train.isWaitingWaiting=0;
 		lock.unlock();
 	}
 	
@@ -145,10 +142,7 @@ class Station{
 			try {
 				System.out.println("Currently  " + name + " is waiting for "+ this.Name);
 				//----------- TRAIN WAITS -----------
-				
 				train.await();
-				
-				
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -158,7 +152,6 @@ class Station{
 		hasWaitingTrain = false;
 		tren.isWaiting = 0;
 		tren.isWaitingWaiting=0;
-		tren.nextStation();
 		waiting_train.signal();
 		lock.unlock();
 		System.out.println("nakapasok na " + name + " sa station " + this.Name);

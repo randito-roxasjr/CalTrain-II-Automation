@@ -18,12 +18,15 @@ public class Caltrain{
 	static int getTrainCount(int passengers) {
 		int count = 0;
 		int i=0;
+		
 		while (passengers > count){
 		    count += trains[i].max_seats;
 		    i++;
+		
 		    if(i==16)
 		    	break;
 		}
+		
 		return i;
 	}
 	
@@ -42,8 +45,18 @@ public class Caltrain{
 		stations[6].waiting = passengers;
 		stations[7].waiting = passengers;
 		
+		view.pass_station[0] = passengers;
+		view.pass_station[1] = passengers;
+		view.pass_station[2] = passengers;
+		view.pass_station[3] = passengers;
+		view.pass_station[4] = passengers;
+		view.pass_station[5] = passengers;
+		view.pass_station[6] = passengers;
+		view.pass_station[7] = passengers;
+		
 		while(remaining>0){
 			stations[i].waiting++;
+			view.pass_station[i]++;
 			remaining--;
 			i++;	
 		}
@@ -75,8 +88,11 @@ public class Caltrain{
 			System.out.println("Train "+(i+1));
 			System.out.print("Number of Seats: ");
 			int x = reader.nextInt();
-			trains[i] = new Train("Train "+(i+1),x,stations,true, view);	
+			trains[i] = new Train("Train "+(i+1),x,stations,true, view);
+			
 		}
+		trains[15].isLastTrain = true;
+		trains[15].last_station = stations[7];
 		trains[0].isTrainOne = true;
 	}
 	
@@ -88,17 +104,21 @@ public class Caltrain{
 	
 	public static void main(String[]args) throws InterruptedException {
 		Passenger passengers[];
+		Lock l = new ReentrantLock();
+		Condition dispatch = l.newCondition();
 		station_init();
 		Scanner reader =  new Scanner(System.in);
 		int x = reader.nextInt();
+		int total_passenger = x;
 		int counter=1;
 		passengers = new Passenger[x];
 		distribute_pass(x);
 		for(int i = 0; i<x ; i++) {
-			passengers[i] = new Passenger("Pass#"+(i+1), stations[i%8], stations[(i+5)%8], view);
+			passengers[i] = new Passenger("Pass#"+(i+1), stations[i%8], stations[(i+5)%8], view, i%8);
 			passengers[i].start();
 		}
 		train_init();
+		
 		int train_count = getTrainCount(x);
 		trains[train_count-1].isLastTrain = true;
 		trains[train_count-1].isFirstTrain = false;
