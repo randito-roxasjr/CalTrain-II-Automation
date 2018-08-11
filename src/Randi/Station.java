@@ -1,4 +1,4 @@
-package semaphore;
+package Randi;
 
 import java.util.concurrent.*;
 
@@ -31,14 +31,15 @@ class Station{
 	int free_seats;
 	int waiting;
 	int boarding;
-
-	////////////////// Contructor station_init //////////////////
-	Station(String N){
+	View view;
+	
+	////////////////// Constructor station_init //////////////////
+	Station(String N, View frame){
 		this.Name = N;
+		this.view = frame;
 		System.out.println("Created Station " + this.Name);
 		free_seats = 0;
 		boarding = 0;
-		
 	}
 	
 	public void signal_first_train() throws InterruptedException
@@ -77,9 +78,9 @@ class Station{
 	public void checkWaiting(String name, Train tren) throws InterruptedException {
 		System.out.println("Now,  " + name + " is waiting for waiting "+ this.Name);
 		//----------- TRAIN WAITS -----------
-		tren.isWaiting = true;
+		tren.isWaiting = 1;
 		waiting_train.acquire();
-		tren.isWaiting = false;
+		tren.isWaiting = 0;
 		//----------- TRAIN MOVES FROM WAIT -----------
 		waiting_waiting_train.release();
 	}
@@ -87,9 +88,9 @@ class Station{
 	public void waitEmpty(String name, Train tren) throws InterruptedException {
 		System.out.println("Currently  " + name + " is waiting for "+ this.Name);
 		//----------- TRAIN WAITS -----------
-		tren.isWaiting = true;
+		tren.isWaiting = 1;
 		train.acquire();
-		tren.isWaiting = false;
+		tren.isWaiting = 0;
 		//----------- TRAIN MOVES FROM WAIT -----------
 		waiting_train.release();
 		this.tren = tren;

@@ -1,14 +1,16 @@
-package semaphore;
+package Randi;
 
 import java.util.Scanner;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 public class Caltrain{
 		
 	static Station[] stations = new Station[8];
 	static Train[] trains = new Train[16];
+	static View view = new View();
+	private static Scanner reader;
 	
 	static int getTrainCount(int passengers) {
 		int count = 0;
@@ -38,8 +40,18 @@ public class Caltrain{
 		stations[6].waiting = passengers;
 		stations[7].waiting = passengers;
 		
+		view.pass_station[0] = passengers;
+		view.pass_station[1] = passengers;
+		view.pass_station[2] = passengers;
+		view.pass_station[3] = passengers;
+		view.pass_station[4] = passengers;
+		view.pass_station[5] = passengers;
+		view.pass_station[6] = passengers;
+		view.pass_station[7] = passengers;
+		
 		while(remaining>0){
 			stations[i].waiting++;
+			view.pass_station[i]++;
 			remaining--;
 			i++;	
 		}
@@ -51,26 +63,25 @@ public class Caltrain{
 	
 	////////////////// Create All 8 Stations //////////////////
 	static void station_init(){
-		stations[0] = new Station("Roosevelt");
-		stations[1] = new Station("Monumento");
-		stations[2] = new Station("R. Papa");
-		stations[3] = new Station("Blumentrit");
-		stations[4] = new Station("Bambang");
-		stations[5] = new Station("Carriedo");
-		stations[6] = new Station("EDSA");
-		stations[7] = new Station("Baclaran");
+		stations[0] = new Station("Roosevelt", view);
+		stations[1] = new Station("Monumento", view);
+		stations[2] = new Station("R. Papa", view);
+		stations[3] = new Station("Blumentrit", view);
+		stations[4] = new Station("Bambang", view);
+		stations[5] = new Station("Carriedo", view);
+		stations[6] = new Station("EDSA", view);
+		stations[7] = new Station("Baclaran", view);
 	}
 
 	////////////////// Create All Trains //////////////////
 	static void train_init(){
-		Scanner reader =  new Scanner(System.in);
+		reader = new Scanner(System.in);
 		for(int i=0; i<16; i++){
 			// Get input
 			System.out.println("Train "+(i+1));
 			System.out.print("Number of Seats: ");
 			int x = reader.nextInt();
-			trains[i] = new Train("Train "+(i+1),x,stations,true);
-			
+			trains[i] = new Train("Train "+(i+1), x, stations, true, view);	
 		}
 		
 		trains[0].isTrainOne = true;
@@ -78,6 +89,8 @@ public class Caltrain{
 	
 	static void dispatchTrain(int i) {
 		trains[i].start();
+		if (i != 0)
+			view.addTrain();
 	}
 	
 	public static void main(String[]args) {
@@ -90,7 +103,7 @@ public class Caltrain{
 		passengers = new Passenger[x];
 		distribute_pass(x);
 		for(int i = 0; i<x ; i++) {
-			passengers[i] = new Passenger("Pass#"+(i+1), stations[i%8], stations[(i+5)%8]);
+			passengers[i] = new Passenger("Pass#"+(i+1), stations[i%8], stations[(i+5)%8], view, i%8, (i+5)%8);
 			passengers[i].start();
 		}
 		train_init();
@@ -98,6 +111,22 @@ public class Caltrain{
 		trains[train_count-1].isLastTrain = true;
 		trains[train_count-1].last_station = stations[7];
 		int undispatchedTrain = train_count;
+		
+		// TIMER FOR EXECUTION TIME
+		long startTime = System.currentTimeMillis();
+				
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                JFrame frame = new JFrame();
+                frame.add(view);
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setSize(700,700);
+                frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
+            }
+        });
 		
 		//function as dispatcher
 		while(undispatchedTrain!=0) {
@@ -114,7 +143,10 @@ public class Caltrain{
 			dispatchTrain(counter);
 			counter++;
 			undispatchedTrain--;
-		}		
+		}
+		
+		long endTime = System.currentTimeMillis();
+		System.out.println("That took " + (endTime - startTime) + " milliseconds");
 	}
 	
 
