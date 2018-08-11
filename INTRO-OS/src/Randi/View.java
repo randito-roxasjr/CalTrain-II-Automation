@@ -106,23 +106,23 @@ public class View extends JPanel
     	double height = screenSize.getHeight();
     	double width = screenSize.getWidth();
     	
-//    	// Draw H Train Track 1935 x 105
-//    	ImageIcon htracks = new ImageIcon("images\\htraintracks.png");
-//    	// Top
-//    	htracks.paintIcon(this, g, 250, 150);
-//    	// Bottom
-//    	htracks.paintIcon(this, g, 250, 1245);
-//    	// Draw V Train Track 80 x 1200
-//    	ImageIcon vtracks = new ImageIcon("images\\vtraintracks.png");
-//    	// Left
-//    	vtracks.paintIcon(this, g, 250, 150);
-//    	// Right
-//    	vtracks.paintIcon(this, g, 2105, 150);
+    	// Draw H Train Track 1935 x 105
+    	ImageIcon htracks = new ImageIcon("images\\htraintracks.png");
+    	// Top
+    	htracks.paintIcon(this, g, 250, 150);
+    	// Bottom
+    	htracks.paintIcon(this, g, 250, 1245);
+    	// Draw V Train Track 80 x 1200
+    	ImageIcon vtracks = new ImageIcon("images\\vtraintracks.png");
+    	// Left
+    	vtracks.paintIcon(this, g, 250, 150);
+    	// Right
+    	vtracks.paintIcon(this, g, 2105, 150);
     	
-        //Draw Outer Line
-      	g.drawRect(250, 150, (int) width-offsetR-130, (int) height-offsetB-155);
-  		//Draw Inner Line
-  		g.drawRect(325, 255, (int) width-offsetR-275, (int) height-offsetB-360);
+//        //Draw Outer Line
+//      	g.drawRect(250, 150, (int) width-offsetR-130, (int) height-offsetB-155);
+//  		//Draw Inner Line
+//  		g.drawRect(325, 255, (int) width-offsetR-275, (int) height-offsetB-360);
   		
   		// Import Station Image Size: 200 x 65 px
   		ImageIcon i = new ImageIcon("images\\station.png");

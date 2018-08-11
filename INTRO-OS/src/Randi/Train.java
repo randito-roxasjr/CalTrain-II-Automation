@@ -204,7 +204,7 @@ class Train extends Thread{
 			}
 			curr_station = stations[i];
 			
-		//	next_station.checkWaiting(name, curr_station, isFirstTrain);
+			next_station.checkWaiting(name, curr_station, isFirstTrain, this);
 			
 			isFirstTrain = false;
 			
